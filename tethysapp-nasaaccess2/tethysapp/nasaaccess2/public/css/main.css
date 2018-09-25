@@ -1,0 +1,71 @@
+section {
+    width: 100%;
+    height: calc(100% - 50px);
+    margin-top: 50px;
+    padding: 5px;
+}
+
+.form-container {
+    float: left;
+    width: 50%;
+    height: calc(50%-50px);
+    padding: 10px;
+    margin: auto;
+}
+
+.form {
+    position: relative;
+    margin: auto;
+    padding: 5px;
+}
+
+table {
+    border-style: solid;
+    border-width: 1px;
+    border-color: #647899;
+    border-radius: 5px;
+}
+
+
+.input-daterange {
+    margin-left: 0;
+    width: 100%
+}
+
+#start_pick {
+    font-size: 16px;
+    border-top-left-radius: 5px !important;
+    border-bottom-left-radius: 5px !important;
+}
+
+#end_pick {
+    font-size: 16px;
+    border-top-right-radius: 5px !important;
+    border-bottom-right-radius: 5px !important;
+}
+
+.file-select .form-group{
+    float: left;
+    width: 60%;
+}
+
+#addShp {
+    float: right;
+    width: 35%;
+}
+
+#addDem {
+    float: right;
+    width: 35%;
+}
+
+.map {
+    height: 100% !important;
+    width: 50% !important;
+    padding: 5px !important;
+    float: right
+}
+
+#id_access_code {
+    margin-left: 15px;
+}
