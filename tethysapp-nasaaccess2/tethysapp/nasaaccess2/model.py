@@ -20,20 +20,22 @@ class accessCode(models.Model):
 
 
 def nasaaccess_run(email, functions, watershed, dem, start, end):
+    #identify where each of the input files are located in the server
     shp_path = os.path.join(data_path, 'shapefiles', watershed, watershed + '.shp')
     dem_path = os.path.join(data_path, 'DEMfiles', dem + '.tif')
+    #create a new folder to store the user's requested data
     unique_id = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
     unique_path = os.path.join(data_path, 'outputs', unique_id, 'nasaaccess_data')
     os.makedirs(unique_path, 0777)
+    #create a temporary directory to store all intermediate data while nasaaccess functions run
     tempdir = os.path.join(temp_path, unique_id)
     os.makedirs(tempdir, 0777)
 
-    print(shp_path, dem_path, unique_id, unique_path, tempdir, start, end)
-
     functions = ','.join(functions)
 
-    run = subprocess.Popen([sys.executable, "/home/ubuntu/subprocess.py", email, functions, unique_id, shp_path, dem_path,
-                              unique_path, tempdir, start, end])
+    #pass user's inputs and file paths to the nasaaccess python function that will run detached from the app
+    run = subprocess.Popen([sys.executable, "/home/ubuntu/subprocesses/nasaaccess.py", email, functions, unique_id, 
+                            shp_path, dem_path, unique_path, tempdir, start, end])
 
     return unique_id
 
