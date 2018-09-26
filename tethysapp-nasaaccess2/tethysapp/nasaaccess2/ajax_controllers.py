@@ -62,14 +62,16 @@ def upload_tiffiles(request):
 
 def download_data(request):
     """
-    Controller to download data using a unique 6-digit access code emailed to the user when their data is ready
+    Controller to download data using a unique access code emailed to the user when their data is ready
     """
     if request.method == 'POST':
+        #get access code from form
         access_code = request.POST['access_code']
-        print(access_code)
 
+        #identify user's file path on the server
         unique_path = os.path.join(data_path, 'outputs', access_code, 'nasaaccess_data')
 
+        #compress the entire directory into a .zip file
         def zipfolder(foldername, target_dir):
             zipobj = zipfile.ZipFile(foldername + '.zip', 'w', zipfile.ZIP_DEFLATED)
             rootlen = len(target_dir) + 1
@@ -80,10 +82,12 @@ def download_data(request):
 
         zipfolder(unique_path, unique_path)
 
+        #open the zip file
         path_to_file = os.path.join(data_path, 'outputs', access_code, 'nasaaccess_data.zip')
         f = open(path_to_file, 'r')
         myfile = File(f)
 
+        #download the zip file using the browser's download dialogue box
         response = HttpResponse(myfile, content_type='application/zip')
         response['Content-Disposition'] = 'attachment; filename=nasaaccess_data.zip'
         return response
