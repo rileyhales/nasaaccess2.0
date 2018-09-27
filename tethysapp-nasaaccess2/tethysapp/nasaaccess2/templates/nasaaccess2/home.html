@@ -208,7 +208,6 @@
             <form class="form" method="post" enctype="multipart/form-data" action="upload_shp/">
                 {% csrf_token %}
                 {{ shpform }}
-                <!--<input type="file" name="shp_file" accept=".shp,.shx,.dbf, .prj" multiple>-->
                 <br>
                 <input class="btn btn-success" type="submit" value="Upload new Shapefile">
             </form>
@@ -220,7 +219,7 @@
     </div>
   </div>
 
-    <!-- Upload New Shapefile Modal -->
+    <!-- Upload New DEM Modal -->
   <div class="modal fade" id="dem-modal" tabindex="-1" role="dialog" aria-labelledby="dem-modal-label">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
