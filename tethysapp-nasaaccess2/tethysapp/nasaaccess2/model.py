@@ -70,3 +70,8 @@ def upload_shapefile(id):
             shapefile_zip=zip_archive,
             overwrite=True
         )
+       
+request_url = '{0}workspaces/{1}/coveragestores/{2}/file.geotiff'.format(geoserver['rest_url'],
+                                                                                 geoserver['workspace'], storename)
+
+requests.put(request_url, verify=False, headers=headers, data=data, auth=(user, password))
