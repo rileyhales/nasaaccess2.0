@@ -33,9 +33,15 @@ def nasaaccess_run(email, functions, watershed, dem, start, end):
 
     functions = ','.join(functions)
 
+    subprocess.Popen('source activate nasaaccess')
+
+    # subprocess.Popen('source activate nasaaccess && python /home/ubuntu/subprocesses/nasaaccess.py' + email + ' ' +
+    #                functions + ' ' + unique_id + ' ' + shp_path + ' ' + dem_path + ' ' + unique_path + ' ' +
+    #                tempdir + ' ' + start + ' ' + end + ' && source deactivate', shell=True)
+
     #pass user's inputs and file paths to the nasaaccess python function that will run detached from the app
-    run = subprocess.Popen([sys.executable, "/home/ubuntu/subprocesses/nasaaccess.py", email, functions, unique_id, 
-                            shp_path, dem_path, unique_path, tempdir, start, end])
+    # run = subprocess.Popen([sys.executable, "/home/ubuntu/subprocesses/nasaaccess.py", email, functions, unique_id,
+    #                         shp_path, dem_path, unique_path, tempdir, start, end])
 
     return unique_id
 
@@ -71,7 +77,7 @@ def upload_shapefile(id):
             overwrite=True
         )
        
-request_url = '{0}workspaces/{1}/datastores/{2}/file.shp'.format(geoserver['rest_url'],
-                                                                                 geoserver['workspace'], storename)
-
-requests.put(request_url, verify=False, headers=headers, data=data, auth=(user, password))
+# request_url = '{0}workspaces/{1}/datastores/{2}/file.shp'.format(geoserver['rest_url'],
+#                                                                                  geoserver['workspace'], storename)
+#
+# requests.put(request_url, verify=False, headers=headers, data=data, auth=(user, password))
