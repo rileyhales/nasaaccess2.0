@@ -33,15 +33,9 @@ def nasaaccess_run(email, functions, watershed, dem, start, end):
 
     functions = ','.join(functions)
 
-    subprocess.Popen('source activate nasaaccess')
-
-    # subprocess.Popen('source activate nasaaccess && python /home/ubuntu/subprocesses/nasaaccess.py' + email + ' ' +
-    #                functions + ' ' + unique_id + ' ' + shp_path + ' ' + dem_path + ' ' + unique_path + ' ' +
-    #                tempdir + ' ' + start + ' ' + end + ' && source deactivate', shell=True)
-
     #pass user's inputs and file paths to the nasaaccess python function that will run detached from the app
-    # run = subprocess.Popen([sys.executable, "/home/ubuntu/subprocesses/nasaaccess.py", email, functions, unique_id,
-    #                         shp_path, dem_path, unique_path, tempdir, start, end])
+    run = subprocess.call(["/home/ubuntu/miniconda3/envs/nasaaccess/bin/python3", "/home/ubuntu/subprocesses/nasaaccess.py", email, functions, unique_id,
+                            shp_path, dem_path, unique_path, tempdir, start, end])
 
     return unique_id
 
