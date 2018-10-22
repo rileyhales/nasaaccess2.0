@@ -2,6 +2,9 @@ from django.db import models
 import os, random, string, subprocess
 from .config import data_path, temp_path
 from tethys_sdk.services import get_spatial_dataset_engine
+import logging
+
+logging.basicConfig(filename='/home/ubuntu/nasaaccess_data/nasaaccess.log',level=logging.INFO)
 
 
 # Model for the Upload Shapefiles form
@@ -35,13 +38,18 @@ def nasaaccess_run(email, functions, watershed, dem, start, end):
     os.chmod(tempdir, 0o777)
 
     functions = ','.join(functions)
+    logging.info(functions)
     try:
+        logging.info("trying to run nasaaccess functions")
         #pass user's inputs and file paths to the nasaaccess python function that will run detached from the app
         run = subprocess.call(["/home/ubuntu/tethys/miniconda/envs/nasaaccess/bin/python3", "/home/ubuntu/subprocesses/nasaaccess.py", email, functions, unique_id,
                                 shp_path, dem_path, unique_path, tempdir, start, end])
+
+        logging.info(run)
         return "nasaaccess is running"
     except Exception as e:
-        return e
+        logging.info(str(e))
+        return str(e)
 
 def upload_shapefile(id):
 
