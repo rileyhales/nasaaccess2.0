@@ -1,8 +1,6 @@
 from django.db import models
-import os, random, string, subprocess, sys
+import os, random, string, subprocess
 from .config import data_path, temp_path
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
 from tethys_sdk.services import get_spatial_dataset_engine
 
 
@@ -39,7 +37,7 @@ def nasaaccess_run(email, functions, watershed, dem, start, end):
     functions = ','.join(functions)
 
     #pass user's inputs and file paths to the nasaaccess python function that will run detached from the app
-    run = subprocess.call(["/home/ubuntu/miniconda3/envs/nasaaccess/bin/python3", "/home/ubuntu/subprocesses/nasaaccess.py", email, functions, unique_id,
+    run = subprocess.call(["/home/ubuntu/tethys/miniconda/envs/nasaaccess/bin/python3", "/home/ubuntu/subprocesses/nasaaccess.py", email, functions, unique_id,
                             shp_path, dem_path, unique_path, tempdir, start, end])
 
     return unique_id

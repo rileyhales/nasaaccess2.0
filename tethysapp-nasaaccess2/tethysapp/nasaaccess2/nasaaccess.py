@@ -15,9 +15,11 @@ import os
 import shutil
 import xarray as xr
 import warnings
+import logging
 from rasterio import features
 from shapely.geometry import box
 
+logging.basicConfig(filename='/home/ubuntu/nasaaccess.log',level=logging.INFO)
 
 def _rasterize_geom(geom, myshape, affinetrans, all_touched):
     indata = [(geom, 1)]
@@ -311,12 +313,18 @@ def GPMswat(Dir, watershed, DEM, start, end):
     #######Example
     # GPMswat(Dir = "./SWAT_INPUT/", watershed = "LowerMekong.shp",DEM = "LowerMekong_dem.tif", start = "2015-12-1", end = "2015-12-3")
 
+    logging.info("Running GPMSwat")
+    logging.info(Dir)
+    logging.info(watershed)
+    logging.info(DEM)
     url_IMERG_input = 'https://gpm1.gesdisc.eosdis.nasa.gov/data/GPM_L3/GPM_3IMERGDF.05/'
     url_TRMM_input = 'https://disc2.gesdisc.eosdis.nasa.gov/data/TRMM_RT/TRMM_3B42RT_Daily.7/'
     myvarIMERG = 'precipitationCal'
     myvarTRMM = 'precipitation'
     start = datetime.datetime.strptime(start, '%Y-%m-%d').date()
     end = datetime.datetime.strptime(end, '%Y-%m-%d').date()
+    logging.info(start)
+    logging.info(end)
     ####Before getting to work on this function do this check
     if start >= datetime.date(2000, 3, 1):
         # Constructing time series based on start and end input days!
@@ -336,7 +344,9 @@ def GPMswat(Dir, watershed, DEM, start, end):
         mon = DUMMY_DATE.strftime('%m')
         year = DUMMY_DATE.strftime('%Y')
         myurl = url_IMERG_input + year + '/' + mon + '/'
+        logging.info(myurl)
         check1 = requests.get(myurl)
+        logging.info(check1)
         if check1.status_code == 200:
             filenames = check1._content
             # getting one of the daily files at the monthly URL specified by DUMMY Date
@@ -348,7 +358,9 @@ def GPMswat(Dir, watershed, DEM, start, end):
                 os.makedirs('./temp/')
                 os.chmod(os.path.join('./temp/'), 0o777)
                 destfile = './temp/' + filenames
+                logging.info("361 " + destfile)
                 filenames = myurl + filenames
+                logging.info(filenames)
                 r = requests.get(filenames, stream=True)
                 with open(destfile, 'wb') as fd:
                     fd.write(r.content)
@@ -422,6 +434,7 @@ def GPMswat(Dir, watershed, DEM, start, end):
                 # update my url with TRMM information
                 myurl = url_TRMM_input + year + '/' + mon + '/'
                 check2 = requests.get(myurl)
+                logging.info(check2)
                 if check2.status_code == 200:
                     filenames = check2._content
                     # getting one of the daily files at the monthly URL specified by DUMMY Date
@@ -440,6 +453,7 @@ def GPMswat(Dir, watershed, DEM, start, end):
                             fd.close()
                         # reading ncdf file
                         nc = netCDF4.Dataset(destfile, mode='r')
+                        logging.info(nc)
                         ###evaluate these values one time!
                         ###getting the y values (longitudes in degrees east)
                         nc_long_TRMM = nc.variables['lon'][:]
@@ -458,6 +472,7 @@ def GPMswat(Dir, watershed, DEM, start, end):
                         nc.close()
                         # save the daily climate data values in a raster
                         TRMM_temp_filename = './temp/' + 'pcp_trmm_rough.tif'
+                        logging.info('475 ' + TRMM_temp_filename)
                         TRMM = rasterio.open(TRMM_temp_filename, 'w', driver='GTiff', height=data.shape[0],
                                              width=data.shape[1], count=1, dtype=data.dtype.name, crs=polys.crs,
                                              transform=transform_TRMM)  #
@@ -579,7 +594,9 @@ def GPMswat(Dir, watershed, DEM, start, end):
                                             ## Now for dates equal to or greater than 2014 March 12 (i.e., IMERG)
                                 else:
                                     myurl = url_IMERG_input + year + '/' + mon + '/'
+                                    logging.info(myurl)
                                     check4 = requests.get(myurl)
+                                    logging.info(check4)
                                     if check4.status_code == 200:
                                         filenames = check4._content
                                         # getting the daily files at each monthly URL
@@ -624,6 +641,7 @@ def GPMswat(Dir, watershed, DEM, start, end):
             '%Y') + ' is out of coverage for TRMM or IMERG data products.')
         print ('Please pick start date equal to or greater than 2000-Mar-01 to access TRMM and IMERG data products.')
         print ('Thank you!')
+        logging.info("Dates aren't valid")
 
 
 def GPMpolyCentroid(Dir, watershed, DEM, start, end):

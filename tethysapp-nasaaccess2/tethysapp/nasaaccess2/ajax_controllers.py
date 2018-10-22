@@ -12,17 +12,19 @@ def run_nasaaccess(request):
     Controller to call nasaaccess R functions.
     """
     # Get selected parameters and pass them into nasaccess R scripts
-    start = request.POST.get('startDate')
-    d_start = str(datetime.datetime.strptime(start, '%b %d, %Y').strftime('%Y-%m-%d'))
-    end = request.POST.get(str('endDate'))
-    d_end = str(datetime.datetime.strptime(end, '%b %d, %Y').strftime('%Y-%m-%d'))
-    functions = request.POST.getlist('functions[]')
-    watershed = request.POST.get('watershed')
-    dem = request.POST.get('dem')
-    email = request.POST.get('email')
-    nasaaccess_run(email, functions, watershed, dem, d_start, d_end)
-    return HttpResponseRedirect('../')
-
+    try:
+        start = request.POST.get('startDate')
+        d_start = str(datetime.datetime.strptime(start, '%b %d, %Y').strftime('%Y-%m-%d'))
+        end = request.POST.get(str('endDate'))
+        d_end = str(datetime.datetime.strptime(end, '%b %d, %Y').strftime('%Y-%m-%d'))
+        functions = request.POST.getlist('functions[]')
+        watershed = request.POST.get('watershed')
+        dem = request.POST.get('dem')
+        email = request.POST.get('email')
+        nasaaccess_run(email, functions, watershed, dem, d_start, d_end)
+        return HttpResponseRedirect('../')
+    except Exception as e:
+        return JsonResponse(str(e))
 
 def upload_shapefiles(request):
 

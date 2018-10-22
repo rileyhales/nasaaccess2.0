@@ -296,8 +296,8 @@ var LIBRARY_OBJECT = (function() {
                 'dem': dem,
                 'email': email
             },
-        }).done(function() {
-            console.log('NASAaccess functions are running')
+        }).done(function(response) {
+            console.log(response)
         });
     }
 
