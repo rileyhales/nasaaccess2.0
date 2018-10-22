@@ -296,8 +296,8 @@ var LIBRARY_OBJECT = (function() {
                 'dem': dem,
                 'email': email
             },
-        }).done(function(response) {
-            console.log(response)
+        }).done(function(data) {
+            console.log(data)
         });
     }
 

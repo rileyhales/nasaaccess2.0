@@ -21,8 +21,8 @@ def run_nasaaccess(request):
         watershed = request.POST.get('watershed')
         dem = request.POST.get('dem')
         email = request.POST.get('email')
-        nasaaccess_run(email, functions, watershed, dem, d_start, d_end)
-        return HttpResponseRedirect('../')
+        result = nasaaccess_run(email, functions, watershed, dem, d_start, d_end)
+        return JsonResponse(str(result))
     except Exception as e:
         return JsonResponse(str(e))
 
