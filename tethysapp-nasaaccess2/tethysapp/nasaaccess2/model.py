@@ -34,7 +34,7 @@ def nasaaccess_run(email, functions, watershed, dem, start, end):
     unique_path = os.path.join(unique_path, 'nasaaccess_data')
     os.makedirs(unique_path)
     os.chmod(unique_path, 0o777)
-    os.chown(tempdir, uid, -1)
+    os.chown(unique_path, uid, -1)
     #create a temporary directory to store all intermediate data while nasaaccess functions run
     tempdir = os.path.join(temp_path, unique_id)
     os.makedirs(tempdir)
