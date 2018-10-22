@@ -22,9 +22,9 @@ def run_nasaaccess(request):
         dem = request.POST.get('dem')
         email = request.POST.get('email')
         result = nasaaccess_run(email, functions, watershed, dem, d_start, d_end)
-        return JsonResponse(str(result))
+        return JsonResponse({'Result': str(result)})
     except Exception as e:
-        return JsonResponse(str(e))
+        return JsonResponse({'Error': str(e)})
 
 def upload_shapefiles(request):
 
