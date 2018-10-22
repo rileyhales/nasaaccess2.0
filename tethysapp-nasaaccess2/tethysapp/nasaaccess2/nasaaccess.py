@@ -19,7 +19,7 @@ import logging
 from rasterio import features
 from shapely.geometry import box
 
-logging.basicConfig(filename='/home/ubuntu/nasaaccess.log',level=logging.INFO)
+logging.basicConfig(filename='/home/ubuntu/nasaaccess_data/nasaaccess.log',level=logging.INFO)
 
 def _rasterize_geom(geom, myshape, affinetrans, all_touched):
     indata = [(geom, 1)]
@@ -136,6 +136,7 @@ def GLDASwat(Dir, watershed, DEM, start, end):
                 filenames = myurl + filenames
                 r = requests.get(filenames, stream=True)
                 with open(destfile, 'wb') as fd:
+                    os.chmod(os.path.join(destfile), 0o777)
                     fd.write(r.content)
                     fd.close()
                 # reading ncdf file
@@ -239,6 +240,7 @@ def GLDASwat(Dir, watershed, DEM, start, end):
                                     subdailyfilename = myurl + subdailyfilename
                                     r = requests.get(subdailyfilename, stream=True)
                                     with open(destfile, 'wb') as fd:
+                                        os.chmod(os.path.join(destfile), 0o777)
                                         fd.write(r.content)
                                         fd.close()
                                         # reading ncdf file
@@ -363,6 +365,7 @@ def GPMswat(Dir, watershed, DEM, start, end):
                 logging.info(filenames)
                 r = requests.get(filenames, stream=True)
                 with open(destfile, 'wb') as fd:
+                    os.chmod(os.path.join(destfile), 0o777)
                     fd.write(r.content)
                     fd.close()
                 # reading ncdf file
@@ -449,6 +452,7 @@ def GPMswat(Dir, watershed, DEM, start, end):
                         filenames = myurl + filenames
                         r = requests.get(filenames, stream=True)
                         with open(destfile, 'wb') as fd:
+                            os.chmod(os.path.join(destfile), 0o777)
                             fd.write(r.content)
                             fd.close()
                         # reading ncdf file
@@ -573,6 +577,7 @@ def GPMswat(Dir, watershed, DEM, start, end):
                                         filenames = myurl + filenames['Web File'].values[0]
                                         r = requests.get(filenames, stream=True)
                                         with open(destfile, 'wb') as fd:
+                                            os.chmod(os.path.join(destfile), 0o777)
                                             fd.write(r.content)
                                             fd.close()
                                             # reading ncdf file
@@ -617,6 +622,7 @@ def GPMswat(Dir, watershed, DEM, start, end):
                                             filenames = myurl + filenames['Web File'].values[0]
                                             r = requests.get(filenames, stream=True)
                                             with open(destfile, 'wb') as fd:
+                                                os.chmod(os.path.join(destfile), 0o777)
                                                 fd.write(r.content)
                                                 fd.close()
                                             # reading ncdf file
@@ -754,6 +760,7 @@ def GPMpolyCentroid(Dir, watershed, DEM, start, end):
                     filenames = myurl + filenames['Web File'].values[0]
                     r = requests.get(filenames, stream=True)
                     with open(destfile, 'wb') as fd:
+                        os.chmod(os.path.join(destfile), 0o777)
                         fd.write(r.content)
                         fd.close()
                     # reading ncdf file
@@ -826,6 +833,7 @@ def GPMpolyCentroid(Dir, watershed, DEM, start, end):
                     filenames = myurl + filenames['Web File'].values[0]
                     r = requests.get(filenames, stream=True)
                     with open(destfile, 'wb') as fd:
+                        os.chmod(os.path.join(destfile), 0o777)
                         fd.write(r.content)
                         fd.close()
                     # reading ncdf file
@@ -991,6 +999,7 @@ def GLDASpolyCentroid(Dir, watershed, DEM, start, end):
                     subdailyfilename = myurl + subdailyfilename
                     r = requests.get(subdailyfilename, stream=True)
                     with open(destfile, 'wb') as fd:
+                        os.chmod(os.path.join(destfile), 0o777)
                         fd.write(r.content)
                         fd.close()
                     # reading ncdf file
@@ -1105,6 +1114,7 @@ tempdir = os.path.join(sys.argv[7],'')
 start = sys.argv[8]
 end = sys.argv[9]
 
+logging.info(str(email) + ' ' + str(functions) + ' ' + str(unique_id) + ' ' + str(shp_path) + ' ' + str(dem_path) + ' ' + str(tempdir))
 
 # change working directory to temporary directory for storing intermediate data
 os.chdir(tempdir)
@@ -1113,19 +1123,19 @@ os.chdir(tempdir)
 for func in functions:
     if func == 'GPMpolyCentroid':
         output_path = os.path.join(unique_path, 'GPMpolyCentroid', '')
-        print('running GPMpoly')
+        logging.info('running GPMpoly')
         GPMpolyCentroid(output_path, shp_path, dem_path, start, end)
     elif func == 'GPMswat':
         output_path = os.path.join(unique_path, 'GPMswat', '')
-        print('running GPMswat')
+        logging.info('running GPMswat')
         GPMswat(output_path, shp_path, dem_path, start, end)
     elif func == 'GLDASpolyCentroid':
         output_path = os.path.join(unique_path, 'GLDASpolyCentroid', '')
-        print('running GLDASpoly')
+        logging.info('running GLDASpoly')
         GLDASpolyCentroid(output_path, shp_path, dem_path, start, end)
     elif func == 'GLDASwat':
         output_path = os.path.join(unique_path, 'GLDASwat', '')
-        print('running GLDASwat')
+        logging.info('running GLDASwat')
         GLDASwat(output_path, shp_path, dem_path, start, end)
 
 #  when data is ready, send the user an email with their unique access code

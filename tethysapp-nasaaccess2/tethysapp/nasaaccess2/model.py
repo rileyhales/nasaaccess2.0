@@ -38,14 +38,13 @@ def nasaaccess_run(email, functions, watershed, dem, start, end):
     os.chmod(tempdir, 0o777)
 
     functions = ','.join(functions)
-    logging.info(functions)
+
     try:
         logging.info("trying to run nasaaccess functions")
         #pass user's inputs and file paths to the nasaaccess python function that will run detached from the app
         run = subprocess.call(["/home/ubuntu/tethys/miniconda/envs/nasaaccess/bin/python3", "/home/ubuntu/subprocesses/nasaaccess.py", email, functions, unique_id,
                                 shp_path, dem_path, unique_path, tempdir, start, end])
 
-        logging.info(run)
         return "nasaaccess is running"
     except Exception as e:
         logging.info(str(e))
