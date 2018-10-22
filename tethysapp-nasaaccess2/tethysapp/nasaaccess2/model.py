@@ -3,6 +3,7 @@ import os, random, string, subprocess
 from .config import data_path, temp_path
 from tethys_sdk.services import get_spatial_dataset_engine
 import logging
+from pwd import getpwnam
 
 logging.basicConfig(filename='/home/ubuntu/nasaaccess_data/nasaaccess.log',level=logging.INFO)
 
@@ -27,15 +28,19 @@ def nasaaccess_run(email, functions, watershed, dem, start, end):
     #create a new folder to store the user's requested data
     unique_id = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
     unique_path = os.path.join(data_path, 'outputs', unique_id)
+    uid = getpwnam('ubuntu').pw_uid
     os.makedirs(unique_path)
     os.chmod(unique_path, 0o777)
     unique_path = os.path.join(unique_path, 'nasaaccess_data')
     os.makedirs(unique_path)
     os.chmod(unique_path, 0o777)
+    os.chown(tempdir, uid, -1)
     #create a temporary directory to store all intermediate data while nasaaccess functions run
     tempdir = os.path.join(temp_path, unique_id)
     os.makedirs(tempdir)
     os.chmod(tempdir, 0o777)
+    os.chown(tempdir, uid, -1)
+
 
     functions = ','.join(functions)
 

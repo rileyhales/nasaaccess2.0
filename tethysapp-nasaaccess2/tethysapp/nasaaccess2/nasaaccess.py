@@ -18,8 +18,11 @@ import warnings
 import logging
 from rasterio import features
 from shapely.geometry import box
+from pwd import getpwnam
 
 logging.basicConfig(filename='/home/ubuntu/nasaaccess_data/nasaaccess.log',level=logging.INFO)
+
+uid = getpwnam('ubuntu').pw_uid
 
 def _rasterize_geom(geom, myshape, affinetrans, all_touched):
     indata = [(geom, 1)]
@@ -132,11 +135,13 @@ def GLDASwat(Dir, watershed, DEM, start, end):
             if not os.path.exists('./temp/'):
                 os.makedirs('./temp/')
                 os.chmod(os.path.join('./temp/'), 0o777)
+                os.chown(os.path.join('./temp/'), uid, -1)
                 destfile = './temp/' + filenames
                 filenames = myurl + filenames
                 r = requests.get(filenames, stream=True)
                 with open(destfile, 'wb') as fd:
                     os.chmod(os.path.join(destfile), 0o777)
+                    os.chown(os.path.join(destfile), uid, -1)
                     fd.write(r.content)
                     fd.close()
                 # reading ncdf file
@@ -201,6 +206,7 @@ def GLDASwat(Dir, watershed, DEM, start, end):
                 if not os.path.exists(Dir):
                     os.makedirs(Dir)
                     os.chmod(os.path.join(Dir), 0o777)
+                    os.chown(os.path.join(Dir), uid, -1)
                     for h in range(study_area_records.shape[0]):
                         filenameSWAT_TXT = os.path.join(Dir, study_area_records['NAME'][h] + '.txt')
                         # write the data begining date once!
@@ -236,11 +242,13 @@ def GLDASwat(Dir, watershed, DEM, start, end):
                                 if not os.path.exists('./temp/'):
                                     os.makedirs('./temp/')
                                     os.chmod(os.path.join('./temp/'), 0o777)
+                                    os.chown(os.path.join('./temp/'), uid, -1)
                                     destfile = './temp/' + subdailyfilename
                                     subdailyfilename = myurl + subdailyfilename
                                     r = requests.get(subdailyfilename, stream=True)
                                     with open(destfile, 'wb') as fd:
                                         os.chmod(os.path.join(destfile), 0o777)
+                                        os.chown(os.path.join(destfile), uid, -1)
                                         fd.write(r.content)
                                         fd.close()
                                         # reading ncdf file
@@ -359,6 +367,7 @@ def GPMswat(Dir, watershed, DEM, start, end):
             if not os.path.exists('./temp/'):
                 os.makedirs('./temp/')
                 os.chmod(os.path.join('./temp/'), 0o777)
+                os.chown(os.path.join('./temp/'), uid, -1)
                 destfile = './temp/' + filenames
                 logging.info("361 " + destfile)
                 filenames = myurl + filenames
@@ -366,6 +375,7 @@ def GPMswat(Dir, watershed, DEM, start, end):
                 r = requests.get(filenames, stream=True)
                 with open(destfile, 'wb') as fd:
                     os.chmod(os.path.join(destfile), 0o777)
+                    os.chown(os.path.join(destfile), uid, -1)
                     fd.write(r.content)
                     fd.close()
                 # reading ncdf file
@@ -448,11 +458,13 @@ def GPMswat(Dir, watershed, DEM, start, end):
                     if not os.path.exists('./temp/'):
                         os.makedirs('./temp/')
                         os.chmod(os.path.join('./temp'), 0o777)
+                        os.chown(os.path.join('./temp/'), uid, -1)
                         destfile = './temp/' + filenames
                         filenames = myurl + filenames
                         r = requests.get(filenames, stream=True)
                         with open(destfile, 'wb') as fd:
                             os.chmod(os.path.join(destfile), 0o777)
+                            os.chown(os.path.join(destfile), uid, -1)
                             fd.write(r.content)
                             fd.close()
                         # reading ncdf file
@@ -535,6 +547,7 @@ def GPMswat(Dir, watershed, DEM, start, end):
                         if not os.path.exists(Dir):
                             os.makedirs(Dir)
                             os.chmod(os.path.join(Dir), 0o777)
+                            os.chown(os.path.join(Dir), uid, -1)
                             for h in range(FinalTable.shape[0]):
                                 filenameSWAT_TXT = Dir + FinalTable['NAME'][h] + '.txt'
                                 # write the data begining date once!
@@ -573,11 +586,13 @@ def GPMswat(Dir, watershed, DEM, start, end):
                                         if not os.path.exists('./temp/'):
                                             os.makedirs('./temp/')
                                             os.chmod(os.path.join('./temp/'), 0o777)
+                                            os.chown(os.path.join('./temp/'), uid, -1)
                                         destfile = './temp/' + filenames['Web File'].values[0]
                                         filenames = myurl + filenames['Web File'].values[0]
                                         r = requests.get(filenames, stream=True)
                                         with open(destfile, 'wb') as fd:
                                             os.chmod(os.path.join(destfile), 0o777)
+                                            os.chown(os.path.join(destfile), uid, -1)
                                             fd.write(r.content)
                                             fd.close()
                                             # reading ncdf file
@@ -618,11 +633,13 @@ def GPMswat(Dir, watershed, DEM, start, end):
                                         if not os.path.exists('./temp/'):
                                             os.makedirs('./temp/')
                                             os.chmod(os.path.join('./temp/'), 0o777)
+                                            os.chown(os.path.join('./temp/'), uid, -1)
                                             destfile = './temp/' + filenames['Web File'].values[0]
                                             filenames = myurl + filenames['Web File'].values[0]
                                             r = requests.get(filenames, stream=True)
                                             with open(destfile, 'wb') as fd:
                                                 os.chmod(os.path.join(destfile), 0o777)
+                                                os.chown(os.path.join(destfile), uid, -1)
                                                 fd.write(r.content)
                                                 fd.close()
                                             # reading ncdf file
@@ -719,6 +736,7 @@ def GPMpolyCentroid(Dir, watershed, DEM, start, end):
         if not os.path.exists(Dir):
             os.makedirs(Dir)
             os.chmod(os.path.join(Dir), 0o777)
+            os.chown(os.path.join(Dir), uid, -1)
         for h in range(study_area_records.shape[0]):
             filenameSWAT_TXT = Dir + study_area_records['NAME'][h] + '.txt'
             # write the data begining date once!
@@ -756,11 +774,13 @@ def GPMpolyCentroid(Dir, watershed, DEM, start, end):
                     if not os.path.exists('./temp/'):
                         os.makedirs('./temp/')
                         os.chmod(os.path.join('./temp/'), 0o777)
+                        os.chown(os.path.join('./temp/'), uid, -1)
                     destfile = './temp/' + filenames['Web File'].values[0]
                     filenames = myurl + filenames['Web File'].values[0]
                     r = requests.get(filenames, stream=True)
                     with open(destfile, 'wb') as fd:
                         os.chmod(os.path.join(destfile), 0o777)
+                        os.chown(os.path.join(destfile), uid, -1)
                         fd.write(r.content)
                         fd.close()
                     # reading ncdf file
@@ -829,11 +849,13 @@ def GPMpolyCentroid(Dir, watershed, DEM, start, end):
                     if not os.path.exists('./temp/'):
                         os.makedirs('./temp/')
                         os.chmod(os.path.join('./temp/'), 0o777)
+                        os.chown(os.path.join('./temp/'), uid, -1)
                     destfile = './temp/' + filenames['Web File'].values[0]
                     filenames = myurl + filenames['Web File'].values[0]
                     r = requests.get(filenames, stream=True)
                     with open(destfile, 'wb') as fd:
                         os.chmod(os.path.join(destfile), 0o777)
+                        os.chown(os.path.join(destfile), uid, -1)
                         fd.write(r.content)
                         fd.close()
                     # reading ncdf file
@@ -956,6 +978,7 @@ def GLDASpolyCentroid(Dir, watershed, DEM, start, end):
         if not os.path.exists(Dir):
             os.makedirs(Dir)
             os.chmod(os.path.join(Dir), 0o777)
+            os.chown(os.path.join(Dir), uid, -1)
         for h in range(study_area_records.shape[0]):
             filenameSWAT_TXT = Dir + study_area_records['NAME'][h] + '.txt'
             # write the data begining date once!
@@ -995,11 +1018,13 @@ def GLDASpolyCentroid(Dir, watershed, DEM, start, end):
                     if not os.path.exists('./temp/'):
                         os.makedirs('./temp/')
                         os.chmod(os.path.join('./temp/'), 0o777)
+                        os.chown(os.path.join('./temp/'), uid, -1)
                     destfile = './temp/' + subdailyfilename
                     subdailyfilename = myurl + subdailyfilename
                     r = requests.get(subdailyfilename, stream=True)
                     with open(destfile, 'wb') as fd:
                         os.chmod(os.path.join(destfile), 0o777)
+                        os.chown(os.path.join(destfile), uid, -1)
                         fd.write(r.content)
                         fd.close()
                     # reading ncdf file
