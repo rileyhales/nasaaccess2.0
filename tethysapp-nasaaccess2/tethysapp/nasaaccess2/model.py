@@ -26,10 +26,10 @@ def nasaaccess_run(email, functions, watershed, dem, start, end):
     #create a new folder to store the user's requested data
     unique_id = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
     unique_path = os.path.join(data_path, 'outputs', unique_id, 'nasaaccess_data')
-    os.makedirs(unique_path, 0777)
+    os.makedirs(unique_path, 0o777)
     #create a temporary directory to store all intermediate data while nasaaccess functions run
     tempdir = os.path.join(temp_path, unique_id)
-    os.makedirs(tempdir, 0777)
+    os.makedirs(tempdir, 0o777)
 
     functions = ','.join(functions)
 
