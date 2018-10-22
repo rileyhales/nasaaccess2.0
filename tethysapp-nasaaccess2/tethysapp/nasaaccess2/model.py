@@ -25,13 +25,16 @@ def nasaaccess_run(email, functions, watershed, dem, start, end):
     dem_path = os.path.join(data_path, 'DEMfiles', dem + '.tif')
     #create a new folder to store the user's requested data
     unique_id = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
-    unique_path = os.path.join(data_path, 'outputs', unique_id, 'nasaaccess_data')
+    unique_path = os.path.join(data_path, 'outputs', unique_id)
     os.makedirs(unique_path)
-    os.chmod(os.path.join(unique_path), 0o777)
+    os.chmod(unique_path, 0o777)
+    unique_path = os.path.join(unique_path, 'nasaaccess_data')
+    os.makedirs(unique_path)
+    os.chmod(unique_path, 0o777)
     #create a temporary directory to store all intermediate data while nasaaccess functions run
     tempdir = os.path.join(temp_path, unique_id)
     os.makedirs(tempdir)
-    os.chmod(os.path.join(tempdir), 0o777)
+    os.chmod(tempdir, 0o777)
 
     functions = ','.join(functions)
 

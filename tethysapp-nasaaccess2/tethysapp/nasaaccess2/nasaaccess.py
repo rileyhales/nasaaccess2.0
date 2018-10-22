@@ -128,7 +128,8 @@ def GLDASwat(Dir, watershed, DEM, start, end):
             # Extract the GLDAS nc4 files for the specific day
             # downloading one file to be able writing Climate info table and gridded file names
             if not os.path.exists('./temp/'):
-                os.makedirs('./temp/', 0o777)
+                os.makedirs('./temp/')
+                os.chmod(os.path.join('./temp/'), 0o777)
                 destfile = './temp/' + filenames
                 filenames = myurl + filenames
                 r = requests.get(filenames, stream=True)
@@ -195,7 +196,8 @@ def GLDASwat(Dir, watershed, DEM, start, end):
                 #### Begin writing SWAT climate input tables
                 #### Get the SWAT file names and then put the first record date
                 if not os.path.exists(Dir):
-                    os.makedirs(Dir, 0o777)
+                    os.makedirs(Dir)
+                    os.chmod(os.path.join(Dir), 0o777)
                     for h in range(study_area_records.shape[0]):
                         filenameSWAT_TXT = os.path.join(Dir, study_area_records['NAME'][h] + '.txt')
                         # write the data begining date once!
@@ -229,7 +231,8 @@ def GLDASwat(Dir, watershed, DEM, start, end):
                             for gg in range(SubdailyTemp.shape[1]):  # Iterating over each subdaily data file
                                 subdailyfilename = filenames['Web File'][gg]
                                 if not os.path.exists('./temp/'):
-                                    os.makedirs('./temp/', 0o777)
+                                    os.makedirs('./temp/')
+                                    os.chmod(os.path.join('./temp/'), 0o777)
                                     destfile = './temp/' + subdailyfilename
                                     subdailyfilename = myurl + subdailyfilename
                                     r = requests.get(subdailyfilename, stream=True)
@@ -342,7 +345,8 @@ def GPMswat(Dir, watershed, DEM, start, end):
             # trying here the first day since I am only interested on grid locations
             # downloading one file
             if not os.path.exists('./temp/'):
-                os.makedirs('./temp/', 0o777)
+                os.makedirs('./temp/')
+                os.chmod(os.path.join('./temp/'), 0o777)
                 destfile = './temp/' + filenames
                 filenames = myurl + filenames
                 r = requests.get(filenames, stream=True)
@@ -426,7 +430,8 @@ def GPMswat(Dir, watershed, DEM, start, end):
                     # trying here the first day since I am only interested on grid locations
                     # downloading one file
                     if not os.path.exists('./temp/'):
-                        os.makedirs('./temp/', 0o777)
+                        os.makedirs('./temp/')
+                        os.chmod(os.path.join('./temp'), 0o777)
                         destfile = './temp/' + filenames
                         filenames = myurl + filenames
                         r = requests.get(filenames, stream=True)
@@ -509,7 +514,8 @@ def GPMswat(Dir, watershed, DEM, start, end):
                         #### Begin writing SWAT climate input tables
                         #### Get the SWAT file names and then put the first record date
                         if not os.path.exists(Dir):
-                            os.makedirs(Dir, 0o777)
+                            os.makedirs(Dir)
+                            os.chmod(os.path.join(Dir), 0o777)
                             for h in range(FinalTable.shape[0]):
                                 filenameSWAT_TXT = Dir + FinalTable['NAME'][h] + '.txt'
                                 # write the data begining date once!
@@ -546,7 +552,8 @@ def GPMswat(Dir, watershed, DEM, start, end):
                                                                            errors='coerce')
                                         filenames = filenames[filenames['Date'] == time_period[kk]]
                                         if not os.path.exists('./temp/'):
-                                            os.makedirs('./temp/', 0o777)
+                                            os.makedirs('./temp/')
+                                            os.chmod(os.path.join('./temp/'), 0o777)
                                         destfile = './temp/' + filenames['Web File'].values[0]
                                         filenames = myurl + filenames['Web File'].values[0]
                                         r = requests.get(filenames, stream=True)
@@ -587,7 +594,8 @@ def GPMswat(Dir, watershed, DEM, start, end):
                                                                            errors='coerce')
                                         filenames = filenames[filenames['Date'] == time_period[kk]]
                                         if not os.path.exists('./temp/'):
-                                            os.makedirs('./temp/', 0o777)
+                                            os.makedirs('./temp/')
+                                            os.chmod(os.path.join('./temp/'), 0o777)
                                             destfile = './temp/' + filenames['Web File'].values[0]
                                             filenames = myurl + filenames['Web File'].values[0]
                                             r = requests.get(filenames, stream=True)
@@ -685,7 +693,8 @@ def GPMpolyCentroid(Dir, watershed, DEM, start, end):
         #### Begin writing SWAT climate input tables
         #### Get the SWAT file names and then put the first record date
         if not os.path.exists(Dir):
-            os.makedirs(Dir, 0o777)
+            os.makedirs(Dir)
+            os.chmod(os.path.join(Dir), 0o777)
         for h in range(study_area_records.shape[0]):
             filenameSWAT_TXT = Dir + study_area_records['NAME'][h] + '.txt'
             # write the data begining date once!
@@ -721,7 +730,8 @@ def GPMpolyCentroid(Dir, watershed, DEM, start, end):
                     filenames = filenames[filenames['Date'] == time_period[kk]]
                     dailyPrecip = np.zeros([OutSWAT.shape[0]])
                     if not os.path.exists('./temp/'):
-                        os.makedirs('./temp/', 0o777)
+                        os.makedirs('./temp/')
+                        os.chmod(os.path.join('./temp/'), 0o777)
                     destfile = './temp/' + filenames['Web File'].values[0]
                     filenames = myurl + filenames['Web File'].values[0]
                     r = requests.get(filenames, stream=True)
@@ -792,7 +802,8 @@ def GPMpolyCentroid(Dir, watershed, DEM, start, end):
                     filenames = filenames[filenames['Date'] == time_period[kk]]
                     dailyPrecip = np.zeros([OutSWAT.shape[0]])
                     if not os.path.exists('./temp/'):
-                        os.makedirs('./temp/', 0o777)
+                        os.makedirs('./temp/')
+                        os.chmod(os.path.join('./temp/'), 0o777)
                     destfile = './temp/' + filenames['Web File'].values[0]
                     filenames = myurl + filenames['Web File'].values[0]
                     r = requests.get(filenames, stream=True)
@@ -917,7 +928,8 @@ def GLDASpolyCentroid(Dir, watershed, DEM, start, end):
         #### Begin writing SWAT climate input tables
         #### Get the SWAT file names and then put the first record date
         if not os.path.exists(Dir):
-            os.makedirs(Dir, 0o777)
+            os.makedirs(Dir)
+            os.chmod(os.path.join(Dir), 0o777)
         for h in range(study_area_records.shape[0]):
             filenameSWAT_TXT = Dir + study_area_records['NAME'][h] + '.txt'
             # write the data begining date once!
@@ -955,7 +967,8 @@ def GLDASpolyCentroid(Dir, watershed, DEM, start, end):
                 for gg in range(filenames.shape[0]):  # Iterating over each subdaily data file
                     subdailyfilename = filenames['Web File'][gg]
                     if not os.path.exists('./temp/'):
-                        os.makedirs('./temp/', 0o777)
+                        os.makedirs('./temp/')
+                        os.chmod(os.path.join('./temp/'), 0o777)
                     destfile = './temp/' + subdailyfilename
                     subdailyfilename = myurl + subdailyfilename
                     r = requests.get(subdailyfilename, stream=True)
