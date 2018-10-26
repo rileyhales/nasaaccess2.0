@@ -39,11 +39,12 @@
 {% block app_content_override %}
 
     <section>
+        <div class="alert alert-info" id="not-avail"> <strong>UNDER DEVELOPMENT:</strong> Full app functionality will be available soon</div>
         <div class="form-container">
             <div class="form">
                 <div class="file-select">
                     <h6><strong>Select Watershed Boundary</strong></h6>
-                    <p>(in geographic projection, e.g. CRS('+proj=longlat +datum=WGS84')</p>
+                    <!--<p>(in geographic projection, e.g. CRS('+proj=longlat +datum=WGS84')</p>-->
                     {% gizmo select_watershed %}
                     <!--<button class="btn btn-primary" id="addShp">Upload New Watershed</button>-->
                     <div id="addShp" class="btn-group" role="group">
@@ -53,7 +54,7 @@
                     <br>
                     <br>
                     <h6><strong>Select DEM</strong></h6>
-                    <p>(in geographic projection, e.g. CRS('+proj=longlat +datum=WGS84')</p>
+                    <!--<p>(in geographic projection, e.g. CRS('+proj=longlat +datum=WGS84')</p>-->
                     {% gizmo select_dem %}
                     <!--<button class="btn btn-primary" id="addDem">Upload New DEM</button>-->
                     <div id="addDem" class="btn-group" role="group">
@@ -107,7 +108,7 @@
                 </table>
 
                 <br>
-                <button class="btn btn-primary" id="nasaaccess">Run NASAaccess</button>
+                <button class="btn btn-primary" id="nasaaccess">Run nasaaccess</button>
                 <button class="btn btn-success" id="download_data">Download Data</button>
             </div>
         </div>
@@ -123,16 +124,30 @@
       <div class="modal-content">
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-          <h5 class="modal-title" id="help-modal-label">NASA Access General Information</h5>
+          <h5 class="modal-title" id="help-modal-label">Welcome to nasaaccess</h5>
         </div>
         <div class="modal-body">
-            <p>NASA Access Tethys App is a web platform developed to generate gridded ascii tables and station files
-                needed for the SWAT model or any other hydrological model weather inputs.</p>
+            <p>The nasaaccess Tethys App is a web platform developed to generate weather station files
+                needed for the Soil and Water Assessment Tool (SWAT) and other hydrologic models.
+            </p>
             <p>More information about methodologies used in NASA Access can be obtained from Mohammed et al., 2018
-                <a href='https://doi.org/10.3390/rs10060885'>(https://doi.org/10.3390/rs10060885)</a>.</p>
-            <p>This application was built to provide a user interface for accessing the NASA Access R package without
+                <a href='https://doi.org/10.3390/rs10060885'>(https://doi.org/10.3390/rs10060885)</a>.
+            </p>
+            <p>This application was built to provide a user interface for accessing the nasaaccess R package without
                 needing a local installation of R or setting a user account at
-                <a href='https://disc.gsfc.nasa.gov/registration/registration-for-data-access'>NASA GES DISC</a>.</p>
+                <a href='https://disc.gsfc.nasa.gov/registration/registration-for-data-access'>NASA GES DISC</a>.
+            </p>
+            <br>
+            <p><strong>How To:</strong> Accessing GPM (precipitation) and GLDAS (air temperature) data products from NASA</p>
+                <ol>
+                    <li class="welcome-substep1">Select a watershed or upload your own (<strong>must be a polygon shapefile or json file in WGS 84 geographic projection</strong>)</li>
+                    <li class="welcome-substep1">Select a DEM or upload your own (<strong>must be a TIFF file in WGS-84 geographic projection</strong>)</li>
+                    <li class="welcome-substep1">Select a date range</li>
+                    <li class="welcome-substep1">Select at least one of the nasaaccess functions</li>
+                    <li class="welcome-substep1">Click the "Run nasaaccess" button</li>
+                    <li class="welcome-substep1">Provide an email address for the app to contact you when the data is ready and click "Submit"</li>
+                    <li class="welcome-substep1">Navigate the the nasaaaccess web application (in the same app portal) to download the data</li>
+                </ol>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
@@ -205,6 +220,7 @@
           <h5 class="modal-title" id="shp-modal-label">Upload New Shapefile</h5>
         </div>
         <div class="modal-body">
+            <div class="alert alert-info" id="data-req"> <strong>Data Requirements:</strong> Must be a polygon shapefile or json file in a geographic projection (e.g. WGS84)</div>
             <form class="form" method="post" enctype="multipart/form-data" action="upload_shp/">
                 {% csrf_token %}
                 {{ shpform }}
@@ -228,6 +244,7 @@
           <h5 class="modal-title" id="dem-modal-label">Upload New DEM file</h5>
         </div>
         <div class="modal-body">
+            <div class="alert alert-info" id="data-req"> <strong>Data Requirements:</strong> Must be a TIFF file in a geographic projection (e.g. WGS84)</div>
             <form class="form" method = "post" enctype="multipart/form-data" action="upload_dem/">
                 {% csrf_token %}
                 {{ demform }}

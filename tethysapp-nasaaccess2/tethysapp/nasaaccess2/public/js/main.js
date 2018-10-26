@@ -336,6 +336,7 @@ var LIBRARY_OBJECT = (function() {
 
     $(function() {
         init_all();
+        $("#help-modal").modal('show');
 
         $('#nasaaccess').click(function() {
             validateQuery();
