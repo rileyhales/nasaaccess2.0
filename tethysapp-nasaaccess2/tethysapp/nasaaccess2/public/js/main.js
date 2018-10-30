@@ -25,12 +25,12 @@ var LIBRARY_OBJECT = (function() {
         variable_data,
         wms_workspace,
         geoserver_url = 'http://216.218.240.206:8080/geoserver/wms',
+        gs_workspace = 'nasaaccess',
         wms_url,
         wms_layer,
         wms_source,
         basin_layer,
-        streams_layer,
-        featureOverlayStream,
+        dem_layer,
         featureOverlaySubbasin,
         subbasin_overlay_layers,
         geojson_list;
@@ -39,7 +39,7 @@ var LIBRARY_OBJECT = (function() {
      *                    PRIVATE FUNCTION DECLARATIONS
      *************************************************************************/
     var add_basins,
-        add_streams,
+        add_dem,
         init_events,
         init_all,
         init_map,
@@ -202,17 +202,13 @@ var LIBRARY_OBJECT = (function() {
                 for (var i=0; i<layers.length; i++) {
                     if(layers[i].Title == layer) {
                         layer_xml = xml.getElementsByTagName('Layer')[i+1]
-                        console.log(layer_xml)
                         layerParams = layers[i]
                     }
                 }
                 srs = layer_xml.getElementsByTagName('SRS')[0].innerHTML
                 bbox = layerParams.BoundingBox[0].extent
-                console.log(srs, bbox)
                 var new_extent = ol.proj.transformExtent(bbox, srs, 'EPSG:4326');
-                console.log(new_extent)
                 var center = ol.extent.getCenter(new_extent)
-                console.log(center)
 //                  Create a new view using the extent of the new selected layer
                 var view = new ol.View({
                     center: center,
@@ -252,7 +248,7 @@ var LIBRARY_OBJECT = (function() {
 //      Identify the wms source url, workspace, and datastore
         wms_source = new ol.source.ImageWMS({
             url: geoserver_url,
-            params: {'LAYERS':'nasaaccess:' + layer,'SLD_BODY':sld_string},
+            params: {'LAYERS':gs_workspace + ':' + layer,'SLD_BODY':sld_string},
             serverType: 'geoserver',
             crossOrigin: 'Anonymous',
         });
@@ -266,6 +262,73 @@ var LIBRARY_OBJECT = (function() {
         map.addLayer(basin_layer);
 
 
+    };
+
+
+    add_dem = function(){
+//      Get the selected value from the select watershed drop down
+        var layer = $('#select_dem').val();
+        var store_id = gs_workspace + ':' + layer
+        var style = 'DEM' // Corresponds to a custom SLD style in geoserver
+
+
+//      Set the wms source to the url, workspace, and store for the dem layer of the selected watershed
+        wms_source = new ol.source.ImageWMS({
+            url: geoserver_url,
+            params: {'LAYERS':store_id,'STYLES':style},
+            serverType: 'geoserver',
+            crossOrigin: 'Anonymous'
+        });
+
+        dem_layer = new ol.layer.Image({
+            source: wms_source
+        });
+
+//      add dem layer to the map
+        map.addLayer(dem_layer);
+        var watershed = $('#select_watershed').val()
+
+        if (watershed == '') {
+            var layerParams
+            var layer_xml
+            var bbox
+            var srs
+            var wms_url = geoserver_url + "?service=WMS&version=1.1.1&request=GetCapabilities&"
+            $.ajax({
+                type: "GET",
+                url: wms_url,
+                dataType: 'xml',
+                success: function (xml) {
+    //                  Get the projection and extent of the selected layer from the wms capabilities xml file
+                    var layers = xml.getElementsByTagName("Layer");
+                    var parser = new ol.format.WMSCapabilities();
+                    var result = parser.read(xml);
+                    var layers = result['Capability']['Layer']['Layer']
+                    for (var i=0; i<layers.length; i++) {
+                        if(layers[i].Title == layer) {
+                            layer_xml = xml.getElementsByTagName('Layer')[i+1]
+                            layerParams = layers[i]
+                        }
+                    }
+                    srs = layer_xml.getElementsByTagName('SRS')[0].innerHTML
+                    bbox = layerParams.BoundingBox[0].extent
+                    var new_extent = ol.proj.transformExtent(bbox, srs, 'EPSG:4326');
+                    var center = ol.extent.getCenter(new_extent)
+    //                  Create a new view using the extent of the new selected layer
+                    var view = new ol.View({
+                        center: center,
+                        projection: 'EPSG:4326',
+                        extent: new_extent,
+                        zoom: 6
+                    });
+    //                  Move the map to center on the selected layer
+                    map.setView(view)
+                    map.getView().fit(new_extent, map.getSize());
+                }
+            });
+        } else {
+            add_basins(); // Re-add basins layer if at watershed is selected
+        }
     };
 
     init_all = function(){
@@ -284,7 +347,6 @@ var LIBRARY_OBJECT = (function() {
         var watershed = $('#select_watershed').val();
         var dem = $('#select_dem').val();
         var email = $('#id_email').val();
-	    console.log(start, end, functions, watershed, dem, email)
         $.ajax({
             type: 'POST',
             url: "/apps/nasaaccess2/run/",
@@ -310,7 +372,6 @@ var LIBRARY_OBJECT = (function() {
         $('.chk:checked').each(function() {
              models.push( $( this ).val());
         });
-        console.log(watershed, dem, start, end, models)
         if (watershed === undefined || dem === undefined || start === undefined || end === undefined || models.length == 0) {
             alert('Please be sure you have selected a watershed, DEM, start and end dates, and at least 1 function')
         } else {
@@ -336,30 +397,39 @@ var LIBRARY_OBJECT = (function() {
 
     $(function() {
         init_all();
-        $("#help-modal").modal('show');
+//        $("#help-modal").modal('show');
+        $('#loading').addClass('hidden')
+
+        $('#shp_submit').click(function(){
+            $('#loading').removeClass('hidden')
+        });
+
+        $('#dem_submit').click(function(){
+            $('#loading').removeClass('hidden')
+        });
 
         $('#nasaaccess').click(function() {
             validateQuery();
-
         });
 
         $('#submit_form').click(function() {
             $("#cont-modal").modal('hide');
-            nasaaccess()
+            nasaaccess();
         });
 
         $('#download_data').click(function() {
             $("#download-modal").modal('show');
         });
 
-//        $('#submit-download').click(function() {
-//            dataDownload();
-//            $("#download-modal").modal('hide');
-//        });
-
         $('#select_watershed').change(function() {
             map.removeLayer(basin_layer);
             add_basins();
+        });
+
+        $('#select_dem').change(function() {
+            map.removeLayer(basin_layer);
+            map.removeLayer(dem_layer);
+            add_dem();
         });
 
         $('#addShp').click(function() {

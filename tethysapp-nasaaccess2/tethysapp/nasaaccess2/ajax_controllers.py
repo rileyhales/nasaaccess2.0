@@ -1,10 +1,15 @@
-import os, datetime, zipfile
+import os, datetime
 from django.http import JsonResponse, HttpResponseRedirect, HttpResponse
 from django.core.files import File
 from .forms import UploadShpForm, UploadDEMForm
 from .config import data_path
 from .model import *
+from .app import nasaaccess2
+import logging
 
+
+app_workspace = os.path.join(nasaaccess2.get_app_workspace().path)
+logging.basicConfig(filename=app_workspace + '/nasaaccess.log',level=logging.INFO)
 
 def run_nasaaccess(request):
 
@@ -21,7 +26,8 @@ def run_nasaaccess(request):
         watershed = request.POST.get('watershed')
         dem = request.POST.get('dem')
         email = request.POST.get('email')
-        result = nasaaccess_run(email, functions, watershed, dem, d_start, d_end)
+        user_workspace = nasaaccess2.get_user_workspace(request.user).path
+        result = nasaaccess_run(email, functions, watershed, dem, d_start, d_end, user_workspace)
         return JsonResponse({'Result': str(result)})
     except Exception as e:
         return JsonResponse({'Error': str(e)})
@@ -35,15 +41,24 @@ def upload_shapefiles(request):
     if request.method == 'POST':
         form = UploadShpForm(request.POST, request.FILES)
         id = request.FILES['shapefile'].name.split('.')[0] # Get name of the watershed from the shapefile name
-        perm_file_path = os.path.join(data_path, 'shapefiles')
         if form.is_valid():
-            if os.path.isfile(perm_file_path):
-                print('file already exists')
-                upload_shapefile(id)
+            form.save()  # Save the shapefile to the nasaaccess data file path
+            perm_file_path = os.path.join(data_path, 'shapefiles', id)
+            user_workspace = os.path.join(nasaaccess2.get_user_workspace(request.user).path, 'shapefiles')
+            shp_path_user = os.path.join(user_workspace, id)
+            if os.path.isfile(perm_file_path) or os.path.isfile(shp_path_user):
+                logging.info('file already exists')
             else:
-                print('saving shapefile to server')
-                form.save() # Save the shapefile to the nasaaccess data file path
-                upload_shapefile(id) # Run upload_shapefile function to upload file to the geoserver
+                logging.info('saving shapefile to server')
+                if not os.path.exists(user_workspace):
+                    os.makedirs(user_workspace)
+                    os.chmod(user_workspace, 0o777)
+                    os.makedirs(shp_path_user)
+                    os.chmod(shp_path_user, 0o777)
+                if not os.path.exists(shp_path_user):
+                    os.makedirs(shp_path_user)
+                    os.chmod(shp_path_user, 0o777)
+                upload_shapefile(id, shp_path_user) # Run upload_shapefile function to upload file to the geoserver
             return HttpResponseRedirect('../') # Return to Home page
     else:
         return HttpResponseRedirect('../') # Return to Home page
@@ -55,8 +70,19 @@ def upload_tiffiles(request):
     """
     if request.method == 'POST':
         form = UploadDEMForm(request.POST, request.FILES)
+        id = request.FILES['DEMfile'].name
         if form.is_valid():
-            form.save()
+            form.save(commit=True)
+            perm_file_path = os.path.join(data_path, 'DEMfiles', id)
+            dem_path_user = os.path.join(nasaaccess2.get_user_workspace(request.user).path, 'DEMfiles')
+            if os.path.isfile(perm_file_path) or os.path.isfile(dem_path_user):
+                logging.info('file already exists')
+            else:
+                logging.info('saving dem to server')
+                if not os.path.exists(dem_path_user):
+                    os.makedirs(dem_path_user)
+                    os.chmod(dem_path_user, 0o777)
+                upload_dem(id, dem_path_user)
             return HttpResponseRedirect('../')
     else:
         return HttpResponseRedirect('../')

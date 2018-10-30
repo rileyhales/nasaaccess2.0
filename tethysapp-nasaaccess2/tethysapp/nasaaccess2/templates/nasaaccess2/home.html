@@ -48,7 +48,7 @@
                     {% gizmo select_watershed %}
                     <!--<button class="btn btn-primary" id="addShp">Upload New Watershed</button>-->
                     <div id="addShp" class="btn-group" role="group">
-                      <a class="btn btn-success" role="button" id="addShp-btn">
+                      <a class="btn btn-info" role="button" id="addShp-btn">
                         <span class="glyphicon glyphicon-upload"></span>&nbsp;&nbsp;Upload New Watershed </a>
                     </div>
                     <br>
@@ -58,7 +58,7 @@
                     {% gizmo select_dem %}
                     <!--<button class="btn btn-primary" id="addDem">Upload New DEM</button>-->
                     <div id="addDem" class="btn-group" role="group">
-                      <a class="btn btn-success" role="button" id="addDem-btn">
+                      <a class="btn btn-info" role="button" id="addDem-btn">
                         <span class="glyphicon glyphicon-upload"></span>&nbsp;&nbsp;Upload New DEM </a>
                     </div>
                 </div>
@@ -76,43 +76,48 @@
                       <tr>
                         <th></th>
                         <th>Function</th>
-                        <th>Information</th>
+                        <th>Description</th>
                       </tr>
                     </thead>
                     <tbody>
                       <tr>
                         <td><input class="chk" type="checkbox" value="GLDASpolyCentroid"></td>
-                        <td>GLDAS Poly Centroid</td>
-                        <td>Generate air temperature input files as well as air temperature stations file from
+                        <td>GLDASpolycentroid</td>
+                        <td>Create daily air temperature time-series files at the centroid of each polygon within the selected boundary. Generated from
                             NASA GLDAS remote sensing products.</td>
                       </tr>
                       <tr>
                         <td><input class="chk" type="checkbox" value="GLDASwat"></td>
-                        <td>GLDAS SWAT</td>
-                        <td>Generate SWAT air temperature input files as well as air temperature stations file from
+                        <td>GLDASwat</td>
+                        <td>Create SWAT-compatible daily air temperature daily time-series files evenly distributed (on a grid) over the selected boundary. Generated from
                             NASA GLDAS remote sensing products.</td>
                       </tr>
                       <tr>
                         <td><input class="chk" type="checkbox" value="GPMpolyCentroid"></td>
-                        <td>GPM Poly Centroid</td>
-                        <td>Generate rainfall input files as well as rain station file from
+                        <td>GPMpolycentroid</td>
+                        <td>Create daily rainfall time-series files at the centroid of each polygon within the selected boundary. Generated from
                             NASA GPM remote sensing products.</td>
                       </tr>
                       <tr>
                         <td><input class="chk" type="checkbox" value="GPMswat"></td>
-                        <td>GPM SWAT</td>
-                        <td>Generate SWAT rainfall input files as well as rain stations file from
+                        <td>GPMsWAT</td>
+                        <td>Create daily rainfall time-series files evenly distributed (on a grid) over the selected boundary. Generated from
                             NASA GPM remote sensing products.</td>
                       </tr>
                     </tbody>
                 </table>
-
-                <br>
-                <button class="btn btn-primary" id="nasaaccess">Run nasaaccess</button>
-                <button class="btn btn-success" id="download_data">Download Data</button>
             </div>
         </div>
-        <div id="map" class="map"></div>
+        <div id="right">
+            <div id="map" class="map"></div>
+            <br>
+            <br>
+            <button class="btn btn-lg bt-block btn-primary" id="nasaaccess">Run nasaaccess</button>
+            <br>
+            <br>
+            <button class="btn btn-lg btn-success" id="download_data">Download Data</button>
+        </div>
+
     </section>
 {% endblock %}
 
@@ -225,7 +230,8 @@
                 {% csrf_token %}
                 {{ shpform }}
                 <br>
-                <input class="btn btn-success" type="submit" value="Upload new Shapefile">
+                <input id="shp_submit" class="btn btn-success" type="submit" value="Upload new Shapefile">
+                <div class="flex-container-row"><img id="loading" class="view-file hidden" src="/static/nasaaccess2/images/loader.gif" style="margin: auto"/></div>
             </form>
         </div>
         <div class="modal-footer">
@@ -249,7 +255,8 @@
                 {% csrf_token %}
                 {{ demform }}
                 <br>
-                <input class="btn btn-success" type="submit" value="Upload New DEM .tif File">
+                <input id="dem_submit" class="btn btn-success" type="submit" value="Upload New DEM">
+                <div class="flex-container-row"><img id="loading" class="view-file hidden" src="/static/nasaaccess2/images/loader.gif" style="margin: auto"/></div>
             </form>
         </div>
         <div class="modal-footer">

@@ -2,7 +2,8 @@ from tethys_sdk.gizmos import *
 from django.shortcuts import render
 import os, datetime
 from .forms import UploadShpForm, UploadDEMForm, accessCodeForm
-from .config import data_path
+from .config import *
+from .app import nasaaccess2
 
 
 def home(request):
@@ -13,19 +14,33 @@ def home(request):
     # Get available Shapefiles and DEM files from app workspace and use them as options in drop down menus
     shapefile_path = os.path.join(data_path, 'shapefiles')
     dem_path = os.path.join(data_path, 'DEMfiles')
+    user_workspace = os.path.join(nasaaccess2.get_user_workspace(request.user).path)
 
     shp_options = []
-    shp_files = os.listdir(shapefile_path)
-    for f in shp_files:
+    shp_files_sys = os.listdir(shapefile_path)
+    for f in shp_files_sys:
         name = f.split(".")[0]
         if name not in shp_options:
             shp_options.append((name,name))
+    if os.path.exists(os.path.join(user_workspace, 'shapefiles')):
+        shp_files_user = os.listdir(os.path.join(user_workspace, 'shapefiles'))
+        for f in shp_files_user:
+            name = f.split(".")[0]
+            if name not in shp_options:
+                shp_options.append((name,name))
 
     dem_options = []
-    dem_files = os.listdir(dem_path)
-    for f in dem_files:
+    dem_files_sys = os.listdir(dem_path)
+    for f in dem_files_sys:
         name = f.split(".")[0]
-        dem_options.append((name, name))
+        if name not in dem_options:
+            dem_options.append((name, name))
+    if os.path.exists(os.path.join(user_workspace, 'DEMfiles')):
+        dem_files_user = os.listdir(os.path.join(user_workspace, 'DEMfiles'))
+        for f in dem_files_user:
+            name = f.split(".")[0]
+            if name not in dem_options:
+                dem_options.append((name, name))
 
     shpform = UploadShpForm()
     demform = UploadDEMForm()

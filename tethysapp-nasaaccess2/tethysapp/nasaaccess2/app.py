@@ -1,7 +1,7 @@
 from tethys_sdk.base import TethysAppBase, url_map_maker
 
 
-class Nasaaccess2(TethysAppBase):
+class nasaaccess2(TethysAppBase):
     """
     Tethys app class for nasaaccess2.
     """

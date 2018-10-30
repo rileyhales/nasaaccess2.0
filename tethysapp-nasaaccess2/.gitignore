@@ -7,3 +7,10 @@
 *.db
 *.sqlite
 *.DS_Store
+*.dbf
+*.prj
+*.shp
+*.shx
+*.tif
+admin
+anonymous_user
