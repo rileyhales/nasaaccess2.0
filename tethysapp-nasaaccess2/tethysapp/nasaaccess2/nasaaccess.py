@@ -1084,7 +1084,7 @@ def send_email(to_email, unique_id):
                    <br>
                    Your nasaaccess data is ready for download at 
                    <a href="http://tethys-servir-mekong.adpc.net/apps/nasaaccess">
-                        http://tethys-servir-mekong.adpc.net/apps/nasaaccess
+                        http://tethys-servir.adpc.net/apps/nasaaccess
                    </a>
                    <br>
                    Your unique access code is: <strong>""" + unique_id + """</strong><br>

@@ -26,7 +26,8 @@ def run_nasaaccess(request):
         watershed = request.POST.get('watershed')
         dem = request.POST.get('dem')
         email = request.POST.get('email')
-        user_workspace = nasaaccess2.get_user_workspace(request.user).path
+        user_workspace = os.path.join(nasaaccess2.get_user_workspace(request.user).path)
+        os.chmod(user_workspace, 0o777)
         result = nasaaccess_run(email, functions, watershed, dem, d_start, d_end, user_workspace)
         return JsonResponse({'Result': str(result)})
     except Exception as e:
