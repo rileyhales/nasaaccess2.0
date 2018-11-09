@@ -1,11 +1,9 @@
 from django.db import models
-import os, random, string, subprocess, requests, shutil
+import os, random, string, subprocess, requests, shutil, logging, zipfile
 from .config import *
-from .app import nasaaccess2
 from tethys_sdk.services import get_spatial_dataset_engine
-import logging, zipfile, time
 
-logging.basicConfig(filename='/home/ubuntu/nasaaccess_data/nasaaccess.log',level=logging.INFO)
+logging.basicConfig(filename=nasaaccess_log,level=logging.INFO)
 
 
 # Model for the Upload Shapefiles form
@@ -46,11 +44,11 @@ def nasaaccess_run(email, functions, watershed, dem, start, end, user_workspace)
     tempdir = os.path.join(temp_path, 'earthdata', unique_id)
 
     functions = ','.join(functions)
-
+    logging.info(
+        "Trying to run {0} functions for {1} watershed from {2} until {3}".format(functions, watershed, start, end))
     try:
-        logging.info("trying to run nasaaccess functions")
         #pass user's inputs and file paths to the nasaaccess python function that will run detached from the app
-        run = subprocess.call(["/home/ubuntu/tethys/miniconda/envs/nasaaccess/bin/python3", "/home/ubuntu/subprocesses/nasaaccess.py", email, functions, unique_id,
+        run = subprocess.call([nasaaccess_py3, nasaaccess_script, email, functions, unique_id,
                                 shp_path, dem_path, unique_path, tempdir, start, end])
 
         return "nasaaccess is running"

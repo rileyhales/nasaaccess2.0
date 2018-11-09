@@ -1,15 +1,12 @@
-import os, datetime
+import os, datetime, logging
 from django.http import JsonResponse, HttpResponseRedirect, HttpResponse
 from django.core.files import File
 from .forms import UploadShpForm, UploadDEMForm
-from .config import data_path
+from .config import *
 from .model import *
 from .app import nasaaccess2
-import logging
 
-
-app_workspace = os.path.join(nasaaccess2.get_app_workspace().path)
-logging.basicConfig(filename=app_workspace + '/nasaaccess.log',level=logging.INFO)
+logging.basicConfig(filename=nasaaccess_log,level=logging.INFO)
 
 def run_nasaaccess(request):
 
