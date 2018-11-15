@@ -8,11 +8,11 @@ logging.basicConfig(filename=nasaaccess_log,level=logging.INFO)
 
 # Model for the Upload Shapefiles form
 class Shapefiles(models.Model):
-    shapefile = models.FileField(upload_to=os.path.join(temp_path,'shapefiles'),max_length=500)
+    shapefile = models.FileField(upload_to=os.path.join(data_path, 'temp', 'shapefiles'),max_length=500)
 
 # Model for the Upload DEM files form
 class DEMfiles(models.Model):
-    DEMfile = models.FileField(upload_to=os.path.join(temp_path,'DEMfiles'),max_length=500)
+    DEMfile = models.FileField(upload_to=os.path.join(data_path, 'temp', 'DEMfiles'),max_length=500)
 
 # Model for data access form
 class accessCode(models.Model):
@@ -41,7 +41,7 @@ def nasaaccess_run(email, functions, watershed, dem, start, end, user_workspace)
     unique_id = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
     unique_path = os.path.join(data_path, 'outputs', unique_id)
     #create a temporary directory to store all intermediate data while nasaaccess functions run
-    tempdir = os.path.join(temp_path, 'earthdata', unique_id)
+    tempdir = os.path.join(data_path, 'temp', 'earthdata', unique_id)
 
     functions = ','.join(functions)
     logging.info(
@@ -63,7 +63,7 @@ def upload_shapefile(id, shp_path):
     '''
 
     # Create a string with the path to the zip archive
-    zip_archive = os.path.join(temp_path, 'shapefiles', id + '.zip')
+    zip_archive = os.path.join(data_path, 'temp', 'shapefiles', id + '.zip')
     zip_ref = zipfile.ZipFile(zip_archive, 'r')
     zip_ref.extractall(shp_path)
     zip_ref.close()
@@ -110,7 +110,7 @@ def upload_dem(id, dem_path):
     upload dem to user workspace and geoserver
     '''
 
-    shutil.copy2(os.path.join(temp_path, 'DEMfiles', id), dem_path)
+    shutil.copy2(os.path.join(data_path, 'temp', 'DEMfiles', id), dem_path)
 
     geoserver_engine = get_spatial_dataset_engine(name='ADPC')
     response = geoserver_engine.get_layer(id, debug=True)
@@ -139,4 +139,4 @@ def upload_dem(id, dem_path):
                                                                                  WORKSPACE, storename)
 
         requests.put(request_url, verify=False, headers=headers, data=data, auth=(user, password))
-    os.remove(os.path.join(temp_path, 'DEMfiles', id))
+    os.remove(os.path.join(data_path, 'temp', 'DEMfiles', id))
