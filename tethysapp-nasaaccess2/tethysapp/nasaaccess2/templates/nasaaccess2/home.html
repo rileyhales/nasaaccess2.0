@@ -38,7 +38,8 @@
 {% block app_content_override %}
 
     <section>
-        <div class="alert alert-warning" id="not-avail"> <strong>UNDER DEVELOPMENT:</strong> GPM and GLDAS Poly Centroid functionality will be available soon</div>
+        <!--<div class="alert alert-warning" id="not-avail"> <strong>UNDER DEVELOPMENT:</strong> GPM and GLDAS Poly Centroid functionality will be available soon</div>-->
+        <div class="alert alert-success hidden" id="job_init"><strong>SUCCESS!</strong> Your request has been submitted. An email will be sent to you when the data is ready to download.</div>
         <div class="form-container">
             <div class="form">
                 <div class="file-select">
@@ -76,7 +77,7 @@
                     </thead>
                     <tbody>
                       <tr>
-                        <td><input class="chk" type="checkbox" value="GLDASpolyCentroid" disabled></td>
+                        <td><input class="chk" type="checkbox" value="GLDASpolyCentroid"></td>
                         <td>GLDASpolycentroid</td>
                         <td>Create daily air temperature time-series files at the centroid of each polygon within the selected boundary. Generated from
                             NASA GLDAS remote sensing products.</td>
@@ -88,7 +89,7 @@
                             NASA GLDAS remote sensing products.</td>
                       </tr>
                       <tr>
-                        <td><input class="chk" type="checkbox" value="GPMpolyCentroid" disabled></td>
+                        <td><input class="chk" type="checkbox" value="GPMpolyCentroid"></td>
                         <td>GPMpolycentroid</td>
                         <td>Create daily rainfall time-series files at the centroid of each polygon within the selected boundary. Generated from
                             NASA GPM remote sensing products.</td>

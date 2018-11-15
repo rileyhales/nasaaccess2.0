@@ -360,6 +360,13 @@ var LIBRARY_OBJECT = (function() {
             },
         }).done(function(data) {
             console.log(data)
+            if (data.Result === 'nasaaccess is running') {
+                $('#job_init').removeClass('hidden')
+                setTimeout(function () {
+                    $('#job_init').addClass('hidden')
+                }, 10000);
+            }
+
         });
     }
 

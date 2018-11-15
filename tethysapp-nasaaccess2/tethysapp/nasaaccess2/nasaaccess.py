@@ -1056,8 +1056,8 @@ def send_email(to_email, unique_id):
                 <p>Hello,
                    <br>
                    Your nasaaccess data is ready for download at 
-                   <a href="http://tethys-servir-mekong.adpc.net/apps/nasaaccess">
-                        http://tethys-servir.adpc.net/apps/nasaaccess
+                   <a href="http://tethys-servir.adpc.net/apps/nasaaccess2">
+                        http://tethys-servir.adpc.net/apps/nasaaccess2
                    </a>
                    <br>
                    Your unique access code is: <strong>""" + unique_id + """</strong><br>
@@ -1121,3 +1121,5 @@ for func in functions:
 
 #  when data is ready, send the user an email with their unique access code
 send_email(email, unique_id)
+
+logging.info("Complete!!!")
