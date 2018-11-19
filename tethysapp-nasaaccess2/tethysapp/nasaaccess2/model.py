@@ -5,7 +5,6 @@ from tethys_sdk.services import get_spatial_dataset_engine
 
 logging.basicConfig(filename=nasaaccess_log,level=logging.INFO)
 
-
 # Model for the Upload Shapefiles form
 class Shapefiles(models.Model):
     shapefile = models.FileField(upload_to=os.path.join(data_path, 'temp', 'shapefiles'),max_length=500)

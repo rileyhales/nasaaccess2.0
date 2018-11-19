@@ -5,7 +5,6 @@ from .forms import UploadShpForm, UploadDEMForm, accessCodeForm
 from .config import *
 from .app import nasaaccess2
 
-
 def home(request):
     """
     Controller for the app home page.
