@@ -92,7 +92,6 @@ def home(request):
                                                     'allowClear': False},
                                    )
 
-
     context = {
         'start_pick': start_pick,
         'end_pick': end_pick,

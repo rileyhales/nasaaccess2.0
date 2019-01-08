@@ -54,7 +54,6 @@ def rasterize_pctcover(geom, atrans, myshape):
 
     return pctcover
 
-
     # This documentation is for each of the functions that follow
     """
     Description:
@@ -115,7 +114,7 @@ def rasterize_pctcover(geom, atrans, myshape):
         start should be equal to or greater than 2000-Jan-01.
 
     Examples
-        GLDASwat(Dir = "./SWAT_INPUT/", watershed = "LowerMekong.shp",DEM = "LowerMekong_dem.tif", start = "2015-12-1", end = "2015-12-3")
+        GLDASwat(Dir = "./SWAT_INPUT/", watershed = "LowerMekong.shp", DEM = "LowerMekong_dem.tif", start = "2015-12-1", end = "2015-12-3")
     """
 
 
@@ -125,7 +124,7 @@ def GLDASwat(Dir, watershed, DEM, start, end):
     myvar = 'Tair_f_inst'
     start = datetime.datetime.strptime(start, '%Y-%m-%d').date()
     end = datetime.datetime.strptime(end, '%Y-%m-%d').date()
-    ####Before getting to work on this function do this check
+    # Before getting to work on this function do this check
     if start >= datetime.date(2000, 1, 1):
         # Constructing time series based on start and end input days!
         time_period = pd.date_range(start, end).tolist()
@@ -163,12 +162,12 @@ def GLDASwat(Dir, watershed, DEM, start, end):
                 # reading ncdf file
                 nc = netCDF4.Dataset(destfile)
                 # since geographic info for all files are the same (assuming we are working with the same data product)
-                ###evaluate these values one time!
-                ###getting the y values (longitudes in degrees east)
+                # evaluate these values one time!
+                # getting the y values (longitudes in degrees east)
                 nc_long = nc.variables['lon'][:]
-                ####getting the x values (latitudes in degrees north)
+                # getting the x values (latitudes in degrees north)
                 nc_lat = nc.variables['lat'][:]
-                ####getting the transform and resolutions for the IMERG raster data
+                # getting the transform and resolutions for the IMERG raster data
                 xres = (nc_long[-1] - nc_long[0]) / nc_long.shape[0]
                 yres = (nc_lat[-1] - nc_lat[0]) / nc_lat.shape[0]
                 transform_GLDAS = rasterio.transform.from_origin(west=nc_long[0], north=nc_lat[-1], xsize=xres,
@@ -206,7 +205,7 @@ def GLDASwat(Dir, watershed, DEM, start, end):
                 # geometry
                 d['geometry'] = d.apply(lambda row: shapely.geometry.Point(row['x'], row['y']), axis=1)
                 study_area_records = gpd.sjoin(d, polys, how='inner', op='intersects')
-                ###working with DEM raster
+                # working with DEM raster
                 # lambda to evaluate elevation based on lat/long
                 elev_x_y = lambda x, y: watershed_elevation.value_at_coords(x, y, latlon=True)
                 study_area_records['ELEVATION'] = study_area_records.apply(lambda row: elev_x_y(row.x, row.y), axis=1)
@@ -217,8 +216,8 @@ def GLDASwat(Dir, watershed, DEM, start, end):
                 shutil.rmtree('./temp/')
                 del data, out_image, d, row, col, T1, nc_long, nc_lat, no_data, out_transform, temp_filename, destfile
 
-                #### Begin writing SWAT climate input tables
-                #### Get the SWAT file names and then put the first record date
+                # Begin writing SWAT climate input tables
+                # Get the SWAT file names and then put the first record date
                 if not os.path.exists(Dir):
                     os.makedirs(Dir)
                     os.chmod(os.path.join(Dir), 0o777)
@@ -229,13 +228,13 @@ def GLDASwat(Dir, watershed, DEM, start, end):
                         swat.write(format(time_period[0], '%Y%m%d'))
                         swat.write('\n')
                         swat.close()
-                    #### Write out the SWAT grid information master table
+                    # Write out the SWAT grid information master table
                     OutSWAT = pd.DataFrame({'ID': study_area_records['ID'], 'NAME': study_area_records['NAME'],
                                             'LAT': study_area_records['LAT'], 'LONG': study_area_records['LONG'],
                                             'ELEVATION': study_area_records['ELEVATION']})
                     OutSWAT.to_csv(filenametableKEY, index=False)
-                    #### Start doing the work!
-                    #### iterate over days to extract records at GLDAS grids estabished in 'study_area_records'
+                    # Start doing the work!
+                    # iterate over days to extract records at GLDAS grids estabished in 'study_area_records'
                     for kk in range(len(time_period)):
                         julianDate = time_period[kk].strftime('%j')
                         year = time_period[kk].strftime('%Y')
@@ -297,10 +296,10 @@ def GLDASwat(Dir, watershed, DEM, start, end):
                                     swat.close()
                             # shutil.rmtree('./temp/')
     else:
-        print ('Sorry' + ", " + start.strftime("%b") + "-" + start.strftime(
+        print('Sorry' + ", " + start.strftime("%b") + "-" + start.strftime(
             '%Y') + ' iis out of coverage for GLDAS data products.')
-        print ('Please pick start date equal to or greater than 2000-Jan-01 to access GLDAS data products.')
-        print ('Thank you!')
+        print('Please pick start date equal to or greater than 2000-Jan-01 to access GLDAS data products.')
+        print('Thank you!')
 
 
 def GPMswat(Dir, watershed, DEM, start, end):
@@ -311,7 +310,8 @@ def GPMswat(Dir, watershed, DEM, start, end):
     myvarTRMM = 'precipitation'
     start = datetime.datetime.strptime(start, '%Y-%m-%d').date()
     end = datetime.datetime.strptime(end, '%Y-%m-%d').date()
-    ####Before getting to work on this function do this check
+
+    # Before getting to work on this function do this check
     if start >= datetime.date(2000, 3, 1):
         # Constructing time series based on start and end input days!
         time_period = pd.date_range(start, end).tolist()
@@ -351,12 +351,12 @@ def GPMswat(Dir, watershed, DEM, start, end):
                 # reading ncdf file
                 nc = netCDF4.Dataset(destfile)
                 # since geographic info for all files are the same (assuming we are working with the same data product)
-                ###evaluate these values one time!
-                ###getting the y values (longitudes in degrees east)
+                # evaluate these values one time!
+                # getting the y values (longitudes in degrees east)
                 nc_long_IMERG = nc.variables['lon'][:]
-                ####getting the x values (latitudes in degrees north)
+                # getting the x values (latitudes in degrees north)
                 nc_lat_IMERG = nc.variables['lat'][:]
-                ####getting the transform and resolutions for the IMERG raster data
+                # getting the transform and resolutions for the IMERG raster data
                 xres_IMERG = (nc_long_IMERG[-1] - nc_long_IMERG[0]) / nc_long_IMERG.shape[0]
                 yres_IMERG = (nc_lat_IMERG[-1] - nc_lat_IMERG[0]) / nc_lat_IMERG.shape[0]
                 transform_IMERG = rasterio.transform.from_origin(west=nc_long_IMERG[0], north=nc_lat_IMERG[-1],
@@ -399,7 +399,8 @@ def GPMswat(Dir, watershed, DEM, start, end):
                 # geometry
                 d['geometry'] = d.apply(lambda row: shapely.geometry.Point(row['x'], row['y']), axis=1)
                 study_area_records_IMERG = gpd.sjoin(d, polys, how='inner', op='intersects')
-                ###working with DEM raster
+
+                # working with DEM raster
                 # lambda to evaluate elevation based on lat/long
                 elev_x_y = lambda x, y: watershed_elevation.value_at_coords(x, y, latlon=True)
                 study_area_records_IMERG['ELEVATION'] = study_area_records_IMERG.apply(
@@ -436,12 +437,12 @@ def GPMswat(Dir, watershed, DEM, start, end):
                             fd.close()
                         # reading ncdf file
                         nc = netCDF4.Dataset(destfile, mode='r')
-                        ###evaluate these values one time!
-                        ###getting the y values (longitudes in degrees east)
+                        # evaluate these values one time!
+                        # getting the y values (longitudes in degrees east)
                         nc_long_TRMM = nc.variables['lon'][:]
-                        ####getting the x values (latitudes in degrees north)
+                        # getting the x values (latitudes in degrees north)
                         nc_lat_TRMM = nc.variables['lat'][:]
-                        ####getting the transform and resolutions for the IMERG raster data
+                        # getting the transform and resolutions for the IMERG raster data
                         xres_TRMM = (nc_long_TRMM[-1] - nc_long_TRMM[0]) / nc_long_TRMM.shape[0]
                         yres_TRMM = (nc_lat_TRMM[-1] - nc_lat_TRMM[0]) / nc_lat_TRMM.shape[0]
                         transform_TRMM = rasterio.transform.from_origin(west=nc_long_TRMM[0], north=nc_lat_TRMM[-1],
@@ -506,9 +507,10 @@ def GPMswat(Dir, watershed, DEM, start, end):
                              'ELEVATION': study_area_records_IMERG['ELEVATION'], 'CloseTRMMIndex': ee['CloseTRMMIndex'],
                              'TRMMlONG': ee['TRMMlONG'], 'TRMMlAT': ee['TRMMlAT'], 'TRMMrow': ee['TRMMrow'],
                              'TRMMcol': ee['TRMMcol']})
-                        # FinalTable.to_csv('./FinalTable.txt',index=False)#
-                        #### Begin writing SWAT climate input tables
-                        #### Get the SWAT file names and then put the first record date
+                        # FinalTable.to_csv('./FinalTable.txt',index=False)
+
+                        # Begin writing SWAT climate input tables
+                        # Get the SWAT file names and then put the first record date
                         if not os.path.exists(Dir):
                             os.makedirs(Dir)
                             os.chmod(os.path.join(Dir), 0o777)
@@ -519,13 +521,13 @@ def GPMswat(Dir, watershed, DEM, start, end):
                                 swat.write(format(time_period[0], '%Y%m%d'))
                                 swat.write('\n')
                                 swat.close()
-                            #### Write out the SWAT grid information master table
+                            # Write out the SWAT grid information master table
                             OutSWAT = pd.DataFrame(
                                 {'ID': FinalTable['ID'], 'NAME': FinalTable['NAME'], 'LAT': FinalTable['LAT'],
                                  'LONG': FinalTable['LONG'], 'ELEVATION': FinalTable['ELEVATION']})
                             OutSWAT.to_csv(filenametableKEY, index=False)
-                            #### Start doing the work!
-                            #### iterate over days to extract record at IMERG grids estabished in 'FinalTable'
+                            # Start doing the work!
+                            # iterate over days to extract record at IMERG grids estabished in 'FinalTable'
                             for kk in range(len(time_period)):
                                 mon = time_period[kk].strftime('%m')
                                 year = time_period[kk].strftime('%Y')
@@ -566,14 +568,14 @@ def GPMswat(Dir, watershed, DEM, start, end):
                                                                    lat=FinalTable['TRMMlAT'], method='nearest')
                                             FinalTable['cell_values'] = pcp_values[myvarTRMM].data.diagonal()
                                             FinalTable['cell_values'] = FinalTable['cell_values'].fillna(-99.0)
-                                            ### Looping through the IMERG points and writing out the daily climate data in SWAT format
+                                            # Looping through the IMERG points and writing out the daily climate data in SWAT format
                                             for h in range(FinalTable.shape[0]):
                                                 filenameSWAT_TXT = Dir + FinalTable['NAME'][h] + '.txt'
                                                 # write the data begining date once!
                                                 with open(filenameSWAT_TXT, 'a') as swat:
                                                     np.savetxt(swat, [FinalTable['cell_values'].values[h]])
                                             shutil.rmtree('./temp/')
-                                            ## Now for dates equal to or greater than 2014 March 12 (i.e., IMERG)
+                                            # Now for dates equal to or greater than 2014 March 12 (i.e., IMERG)
                                 else:
                                     myurl = url_IMERG_input + year + '/' + mon + '/'
                                     check4 = requests.get(myurl)
@@ -609,7 +611,7 @@ def GPMswat(Dir, watershed, DEM, start, end):
                                                                    method='nearest')
                                             FinalTable['cell_values'] = pcp_values[myvarIMERG].data.diagonal()
                                             FinalTable['cell_values'] = FinalTable['cell_values'].fillna(-99.0)
-                                            ### Looping through the IMERG points and writing out the daily climate data in SWAT format
+                                            # Looping through the IMERG points and writing out the daily climate data in SWAT format
                                             for h in range(FinalTable.shape[0]):
                                                 filenameSWAT_TXT = Dir + FinalTable['NAME'][h] + '.txt'
                                                 # write the data begining date once!
@@ -633,7 +635,8 @@ def GPMpolyCentroid(Dir, watershed, DEM, start, end):
     myvarTRMM = 'precipitation'
     start = datetime.datetime.strptime(start, '%Y-%m-%d').date()
     end = datetime.datetime.strptime(end, '%Y-%m-%d').date()
-    ####Before getting to work on this function do this check
+
+    # Before getting to work on this function do this check
     if start >= datetime.date(2000, 3, 1):
         transform_TRMM = None
         transform_IMERG = None
@@ -656,8 +659,9 @@ def GPMpolyCentroid(Dir, watershed, DEM, start, end):
         study_area_records = study_area_records.reset_index()
         study_area_records = study_area_records.rename(columns={'index': 'ID'})
         study_area_records['NAME'] = study_area_records['NAME'] + study_area_records['ID'].astype(str)
-        #### Begin writing SWAT climate input tables
-        #### Get the SWAT file names and then put the first record date
+
+        # Begin writing SWAT climate input tables
+        # Get the SWAT file names and then put the first record date
         if not os.path.exists(Dir):
             os.makedirs(Dir)
             os.chmod(os.path.join(Dir), 0o777)
@@ -673,8 +677,9 @@ def GPMpolyCentroid(Dir, watershed, DEM, start, end):
             {'ID': study_area_records['ID'], 'NAME': study_area_records['NAME'], 'LAT': study_area_records['LAT'],
              'LONG': study_area_records['LONG'], 'ELEVATION': study_area_records['ELEVATION']})
         OutSWAT.to_csv(filenametableKEY, index=False)
-        #### Start doing the work!
-        #### iterate over days to extract records at TRMM or IMERG grids estabished in 'study_area_records'
+
+        # Start doing the work!
+        # iterate over days to extract records at TRMM or IMERG grids estabished in 'study_area_records'
         for kk in range(len(time_period)):
             mon = time_period[kk].strftime('%m')
             year = time_period[kk].strftime('%Y')
@@ -718,16 +723,16 @@ def GPMpolyCentroid(Dir, watershed, DEM, start, end):
                     # data[ind] = None
                     # calculate the TRMM Affine tranform and zonal weights once!
                     if transform_TRMM == None:
-                        ###getting the y values (longitudes in degrees east)
+                        # getting the y values (longitudes in degrees east)
                         nc_long = nc.variables['lon']
-                        ####getting the x values (latitudes in degrees north)
+                        # getting the x values (latitudes in degrees north)
                         nc_lat = nc.variables['lat']
-                        ####getting the transform and resolutions for the IMERG raster data
+                        # getting the transform and resolutions for the IMERG raster data
                         xres = (nc_long[-1].values - nc_long[0].values) / nc_long.shape[0]
                         yres = (nc_lat[-1].values - nc_lat[0].values) / nc_lat.shape[0]
                         transform_TRMM = rasterio.transform.from_origin(west=nc_long[0].values, north=nc_lat[-1].values,
                                                                         xsize=xres, ysize=yres)
-                        ###calculating the weights for zonal average
+                        # calculating the weights for zonal average
                         TRMMweights = np.zeros(
                             shape=(polys.shape[0], nc.variables['lat'].shape[0], nc.variables['lon'].shape[0]))
                         myshape = (nc.variables['lat'].shape[0], nc.variables['lon'].shape[0])
@@ -753,7 +758,7 @@ def GPMpolyCentroid(Dir, watershed, DEM, start, end):
                             swat.write('\n')
                             swat.close()
                     shutil.rmtree('./temp/')
-            else:  ## Now for dates equal to or greater than 2014 March 12
+            else:  # Now for dates equal to or greater than 2014 March 12
                 myurl = url_IMERG_input + year + '/' + mon + '/'
                 check2 = requests.get(myurl)
                 if check2.status_code == 200:
@@ -788,17 +793,17 @@ def GPMpolyCentroid(Dir, watershed, DEM, start, end):
                     # data[ind] = None
                     # calculate the IMERG Affine tranform and zonal weights once!
                     if transform_IMERG == None:
-                        ###getting the y values (longitudes in degrees east)
+                        # getting the y values (longitudes in degrees east)
                         nc_long = nc.variables['lon']
-                        ####getting the x values (latitudes in degrees north)
+                        # getting the x values (latitudes in degrees north)
                         nc_lat = nc.variables['lat']
-                        ####getting the transform and resolutions for the IMERG raster data
+                        # getting the transform and resolutions for the IMERG raster data
                         xres = (nc_long[-1].values - nc_long[0].values) / nc_long.shape[0]
                         yres = (nc_lat[-1].values - nc_lat[0].values) / nc_lat.shape[0]
                         transform_IMERG = rasterio.transform.from_origin(west=nc_long[0].values,
                                                                          north=nc_lat[-1].values, xsize=xres,
                                                                          ysize=yres)
-                        ###calculating the weights for zonal average
+                        # calculating the weights for zonal average
                         IMERGweights = np.zeros(
                             shape=(polys.shape[0], nc.variables['lat'].shape[0], nc.variables['lon'].shape[0]))
                         myshape = (nc.variables['lat'].shape[0], nc.variables['lon'].shape[0])
@@ -827,10 +832,10 @@ def GPMpolyCentroid(Dir, watershed, DEM, start, end):
                     shutil.rmtree('./temp/')
 
     else:
-        print ('Sorry' + ", " + start.strftime("%b") + "-" + start.strftime(
+        print('Sorry' + ", " + start.strftime("%b") + "-" + start.strftime(
             '%Y') + ' is out of coverage for TRMM or IMERG data products.')
-        print ('Please pick start date equal to or greater than 2000-Mar-01 to access TRMM and IMERG data products.')
-        print ('Thank you!')
+        print('Please pick start date equal to or greater than 2000-Mar-01 to access TRMM and IMERG data products.')
+        print('Thank you!')
 
 
 def GLDASpolyCentroid(Dir, watershed, DEM, start, end):
@@ -839,7 +844,8 @@ def GLDASpolyCentroid(Dir, watershed, DEM, start, end):
     myvar = 'Tair_f_inst'
     start = datetime.datetime.strptime(start, '%Y-%m-%d').date()
     end = datetime.datetime.strptime(end, '%Y-%m-%d').date()
-    ####Before getting to work on this function do this check
+
+    # Before getting to work on this function do this check
     if start >= datetime.date(2000, 1, 1):
         # SWAT climate 'precipitation' master file name
         filenametableKEY = Dir + 'temp_Master.txt'
@@ -860,8 +866,9 @@ def GLDASpolyCentroid(Dir, watershed, DEM, start, end):
         study_area_records = study_area_records.reset_index()
         study_area_records = study_area_records.rename(columns={'index': 'ID'})
         study_area_records['NAME'] = study_area_records['NAME'] + study_area_records['ID'].astype(str)
-        #### Begin writing SWAT climate input tables
-        #### Get the SWAT file names and then put the first record date
+
+        # Begin writing SWAT climate input tables
+        # Get the SWAT file names and then put the first record date
         if not os.path.exists(Dir):
             os.makedirs(Dir)
             os.chmod(os.path.join(Dir), 0o777)
@@ -877,8 +884,9 @@ def GLDASpolyCentroid(Dir, watershed, DEM, start, end):
             {'ID': study_area_records['ID'], 'NAME': study_area_records['NAME'], 'LAT': study_area_records['LAT'],
              'LONG': study_area_records['LONG'], 'ELEVATION': study_area_records['ELEVATION']})
         OutSWAT.to_csv(filenametableKEY, index=False)
-        #### Start doing the work!
-        #### iterate over days to extract records at GLDAS grids estabished in 'study_area_records'
+
+        # Start doing the work!
+        # iterate over days to extract records at GLDAS grids estabished in 'study_area_records'
         for kk in range(len(time_period)):
             julianDate = time_period[kk].strftime('%j')
             year = time_period[kk].strftime('%Y')
@@ -921,16 +929,16 @@ def GLDASpolyCentroid(Dir, watershed, DEM, start, end):
                     data[ind] = None
                     # calculate the Affine tranform and zonal weights once!
                     if gg == 0:
-                        ###getting the y values (longitudes in degrees east)
+                        # getting the y values (longitudes in degrees east)
                         nc_long = nc.variables['lon']
-                        ####getting the x values (latitudes in degrees north)
+                        # getting the x values (latitudes in degrees north)
                         nc_lat = nc.variables['lat']
-                        ####getting the transform and resolutions for the IMERG raster data
+                        # getting the transform and resolutions for the IMERG raster data
                         xres = (nc_long[-1] - nc_long[0]) / nc_long.shape[0]
                         yres = (nc_lat[-1] - nc_lat[0]) / nc_lat.shape[0]
                         transform_GLDAS = rasterio.transform.from_origin(west=nc_long[0], north=nc_lat[-1], xsize=xres,
                                                                          ysize=yres)
-                        ###calculating the weights for zonal average
+                        # calculating the weights for zonal average
                         weights = np.zeros(shape=(polys.shape[0], nc.dimensions['lat'].size, nc.dimensions['lon'].size))
                         myshape = (nc.dimensions['lat'].size, nc.dimensions['lon'].size)
                         for mm in range(polys.shape[0]):
@@ -965,10 +973,10 @@ def GLDASpolyCentroid(Dir, watershed, DEM, start, end):
             shutil.rmtree('./temp/')
 
     else:
-        print ('Sorry' + ", " + start.strftime("%b") + "-" + start.strftime(
+        print('Sorry' + ", " + start.strftime("%b") + "-" + start.strftime(
             '%Y') + ' is out of coverage for GLDAS data products.')
-        print ('Please pick start date equal to or greater than 2000-Jan-01 to access GLDAS data products.')
-        print ('Thank you!')
+        print('Please pick start date equal to or greater than 2000-Jan-01 to access GLDAS data products.')
+        print('Thank you!')
 
 
 def send_email(to_email, unique_id):
@@ -981,7 +989,7 @@ def send_email(to_email, unique_id):
     msg['From'] = from_email
     msg['To'] = to_email
 
-    #email content
+    # email content
     message = """\
         <html>
             <head></head>
@@ -1019,8 +1027,8 @@ functions = sys.argv[2].split(',')
 unique_id = sys.argv[3]
 shp_path = os.path.join(sys.argv[4])
 dem_path = os.path.join(sys.argv[5])
-unique_path = os.path.join(sys.argv[6],'')
-tempdir = os.path.join(sys.argv[7],'')
+unique_path = os.path.join(sys.argv[6], '')
+tempdir = os.path.join(sys.argv[7], '')
 start = sys.argv[8]
 end = sys.argv[9]
 
