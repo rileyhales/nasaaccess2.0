@@ -53,20 +53,3 @@ class nasaaccess2(TethysAppBase):
         )
 
         return url_maps
-
-    def custom_settings(self):
-        CustomSettings = (
-            CustomSetting(
-                name='Working Directory',
-                type=CustomSetting.TYPE_STRING,
-                description="Path to the folder with nasaaccess.py, .log, and the data directory (e.g. /home/working_dir/)",
-                required=True,
-            ),
-            CustomSetting(
-                name='Nasa Access Conda Environment Path',
-                type=CustomSetting.TYPE_STRING,
-                description="Where is the conda environment bin? (e.g. activate the env and type which python)",
-                required=True,
-            ),
-        )
-        return CustomSettings

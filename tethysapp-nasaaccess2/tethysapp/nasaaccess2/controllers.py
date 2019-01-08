@@ -9,10 +9,9 @@ def home(request):
     """
     Controller for the app home page.
     """
-
     # Get available Shapefiles and DEM files from app workspace and use them as options in drop down menus
-    shapefile_path = os.path.join(data_path, 'shapefiles')
-    dem_path = os.path.join(data_path, 'DEMfiles')
+    shapefile_path = os.path.join(data_path, 'workspaces/app_workspace/shapefiles')
+    dem_path = os.path.join(data_path, 'workspaces/app_workspace/DEMfiles')
     user_workspace = os.path.join(nasaaccess2.get_user_workspace(request.user).path)
 
     shp_options = []

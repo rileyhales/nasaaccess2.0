@@ -5,13 +5,16 @@ from tethys_sdk.services import get_spatial_dataset_engine
 
 logging.basicConfig(filename=nasaaccess_log,level=logging.INFO)
 
+
 # Model for the Upload Shapefiles form
 class Shapefiles(models.Model):
-    shapefile = models.FileField(upload_to=os.path.join(data_path, 'temp', 'shapefiles'),max_length=500)
+    shapefile = models.FileField(upload_to='workspaces/app_workspace/temp/shapefiles', max_length=500)
+
 
 # Model for the Upload DEM files form
 class DEMfiles(models.Model):
-    DEMfile = models.FileField(upload_to=os.path.join(data_path, 'temp', 'DEMfiles'),max_length=500)
+    DEMfile = models.FileField(upload_to='workspaces/app_workspace/temp/DEMfiles', max_length=500)
+
 
 # Model for data access form
 class accessCode(models.Model):
@@ -19,7 +22,7 @@ class accessCode(models.Model):
 
 
 def nasaaccess_run(email, functions, watershed, dem, start, end, user_workspace):
-    #identify where each of the input files are located in the server
+    # identify where each of the input files are located in the server
     shp_path_sys = os.path.join(data_path, 'shapefiles', watershed, watershed + '.shp')
     shp_path_user = os.path.join(user_workspace, 'shapefiles', watershed, watershed + '.shp')
     shp_path = ''
@@ -27,7 +30,7 @@ def nasaaccess_run(email, functions, watershed, dem, start, end, user_workspace)
         shp_path = shp_path_sys
     elif os.path.isfile(shp_path_user):
         shp_path = shp_path_user
-    print(shp_path)
+    print('shape path:', shp_path)
     dem_path_sys = os.path.join(data_path, 'DEMfiles', dem + '.tif')
     dem_path_user = os.path.join(user_workspace, 'DEMfiles', dem + '.tif')
     dem_path = ''
@@ -35,21 +38,20 @@ def nasaaccess_run(email, functions, watershed, dem, start, end, user_workspace)
         dem_path = dem_path_sys
     elif os.path.isfile(shp_path_user):
         dem_path = dem_path_user
-    print(dem_path)
-    #create a new folder to store the user's requested data
+    print('dem path:', dem_path)
+    # create a new folder to store the user's requested data
     unique_id = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
     unique_path = os.path.join(data_path, 'outputs', unique_id)
-    #create a temporary directory to store all intermediate data while nasaaccess functions run
+    # create a temporary directory to store all intermediate data while nasaaccess functions run
     tempdir = os.path.join(data_path, 'temp', 'earthdata', unique_id)
 
     functions = ','.join(functions)
     logging.info(
         "Trying to run {0} functions for {1} watershed from {2} until {3}".format(functions, watershed, start, end))
     try:
-        #pass user's inputs and file paths to the nasaaccess python function that will run detached from the app
+        # pass user's inputs and file paths to the nasaaccess python function that will run detached from the app
         run = subprocess.call([nasaaccess_py3, nasaaccess_script, email, functions, unique_id,
                                 shp_path, dem_path, unique_path, tempdir, start, end])
-
         return "nasaaccess is running"
     except Exception as e:
         logging.info(str(e))
@@ -57,9 +59,9 @@ def nasaaccess_run(email, functions, watershed, dem, start, end, user_workspace)
 
 def upload_shapefile(id, shp_path):
 
-    '''
+    """
     Check to see if shapefile is on geoserver. If not, upload it.
-    '''
+    """
 
     # Create a string with the path to the zip archive
     zip_archive = os.path.join(data_path, 'temp', 'shapefiles', id + '.zip')
@@ -73,7 +75,7 @@ def upload_shapefile(id, shp_path):
     for line in f:
         if 'PROJCS' in line:
             validate = 1
-            print('This shapefile is in a projected coordinate system. nasaaccess will only work on shapefiles in a geographic coordinate system')
+            print('This shapefile is in a projected coordinate system. You must use a geographic coordinate system')
 
     if validate == 0:
         geoserver_engine = get_spatial_dataset_engine(name='ADPC')
@@ -105,9 +107,9 @@ def upload_shapefile(id, shp_path):
 
 def upload_dem(id, dem_path):
 
-    '''
+    """
     upload dem to user workspace and geoserver
-    '''
+    """
 
     shutil.copy2(os.path.join(data_path, 'temp', 'DEMfiles', id), dem_path)
 
