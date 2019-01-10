@@ -1,10 +1,10 @@
 from django.db import models
-import os, random, string, subprocess, requests, shutil, logging, zipfile
+import os, random, string, requests, shutil, logging, zipfile
 from .config import *
 from tethys_sdk.services import get_spatial_dataset_engine
 
 import threading
-from .nasaaccess import GLDASpolyCentroid, GLDASwat, GPMswat, GPMpolyCentroid, send_email
+from .nasaaccess import nasaaccess_controller
 
 logging.basicConfig(filename=nasaaccess_log,level=logging.INFO)
 
@@ -52,33 +52,50 @@ def nasaaccess_run(email, functions, watershed, dem, start, end, user_workspace)
     logging.info(
         "Trying to run {0} functions for {1} watershed from {2} until {3}".format(functions, watershed, start, end))
 
-    args = []
+    args = [unique_path, shp_path, dem_path, start, end, email, unique_id, tempdir, functions]
+    """
+        these arguements will be used by each of the functions for the swat models
+            unique_path = args[0]
+            watershed = args[1]
+            DEM = args[2]
+            start = args[3]
+            end = args[4]
+            email = args[5]
+            unique_id = args[6]
+            tempdir = args[7]
+            functions = args[8] 
+    """
 
     try:
         # pass user's inputs and file paths to the nasaaccess python function that will run detached from the app
         # run = subprocess.call([nasaaccess_py3, nasaaccess_script, email, functions, unique_id,
         #                         shp_path, dem_path, unique_path, tempdir, start, end])
-        for function in functions:
-            if function == 'GPMpolyCentroid':
-                output_path = os.path.join(unique_path, 'GPMpolyCentroid', '')
-                threading.Thread(target=GPMpolyCentroid, args=args)
+        # for function in functions:
+        #     if function == 'GPMpolyCentroid':
+                # output_path = os.path.join(unique_path, 'GPMpolyCentroid', '')
                 # GPMpolyCentroid(output_path, shp_path, dem_path, start, end)
-            elif function == 'GPMswat':
-                output_path = os.path.join(unique_path, 'GPMswat', '')
-                threading.Thread(target=GPMswat, args=args)
+                # threading.Thread(target=GPMpolyCentroid, args=args)
+            # elif function == 'GPMswat':
+            #     output_path = os.path.join(unique_path, 'GPMswat', '')
+            #     threading.Thread(target=GPMswat, args=args)
                 # GPMswat(output_path, shp_path, dem_path, start, end)
-            elif function == 'GLDASpolyCentroid':
-                output_path = os.path.join(unique_path, 'GLDASpolyCentroid', '')
-                threading.Thread(target=GLDASpolyCentroid, args=args)
+            # elif function == 'GLDASpolyCentroid':
+            #     output_path = os.path.join(unique_path, 'GLDASpolyCentroid', '')
+            #     threading.Thread(target=GLDASpolyCentroid, args=args)
                 # GLDASpolyCentroid(output_path, shp_path, dem_path, start, end)
-            elif function == 'GLDASwat':
-                output_path = os.path.join(unique_path, 'GLDASwat', '')
-                threading.Thread(target=GLDASwat, args=args)
+            # elif function == 'GLDASwat':
+            #     output_path = os.path.join(unique_path, 'GLDASwat', '')
+            #     threading.Thread(target=GLDASwat, args=args)
                 # GLDASwat(output_path, shp_path, dem_path, start, end)
+        threading.Thread(target=nasaaccess_controller, args=args)
         return "nasaaccess is running"
     except Exception as e:
         logging.info(str(e))
         return str(e)
+
+    #  when data is ready, send the user an email with their unique access code
+    send_email(email, unique_id)
+    logging.info("Complete!!!")
 
 
 def upload_shapefile(id, shp_path):

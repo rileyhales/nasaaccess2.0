@@ -12,8 +12,6 @@ from .config import *
 
 logging.basicConfig(filename=nasaaccess_log, level=logging.INFO)
 
-# todo: i need to make sure the right paths are getting used in each spot. compare to spencer's original
-# todo: in model.py make the code set the args list that we pass to the these functions. get the order right
 # todo: run a sample model and have it email me
 
 
@@ -179,19 +177,7 @@ Examples
 """
 
 
-def GLDASwat(args):
-    Dir = args[0]
-    watershed = args[1]
-    DEM = args[2]
-    start = args[3]
-    end = args[4]
-    email = args[5]
-    unique_id = args[6]
-    unique_path = args[7]
-    shp_path = args[8]
-    dem_path = args[9]
-    set_working_directories(Dir, unique_path)
-
+def GLDASwat(Dir, watershed, DEM, start, end):
     logging.info("Running GLDASwat")
     url_GLDAS_input = 'https://hydro1.gesdisc.eosdis.nasa.gov/data/GLDAS/GLDAS_NOAH025_3H.2.1/'
     myvar = 'Tair_f_inst'
@@ -374,24 +360,8 @@ def GLDASwat(args):
         print('Please pick start date equal to or greater than 2000-Jan-01 to access GLDAS data products.')
         print('Thank you!')
 
-    #  when data is ready, send the user an email with their unique access code
-    send_email(email, unique_id)
-    logging.info("Complete!!!")
 
-
-def GPMswat(args):
-    Dir = args[0]
-    watershed = args[1]
-    DEM = args[2]
-    start = args[3]
-    end = args[4]
-    email = args[5]
-    unique_id = args[6]
-    unique_path = args[7]
-    shp_path = args[8]
-    dem_path = args[9]
-    set_working_directories(Dir, unique_path)
-
+def GPMswat(Dir, watershed, DEM, start, end):
     logging.info("Running GPMSwat")
     url_IMERG_input = 'https://gpm1.gesdisc.eosdis.nasa.gov/data/GPM_L3/GPM_3IMERGDF.05/'
     url_TRMM_input = 'https://disc2.gesdisc.eosdis.nasa.gov/data/TRMM_RT/TRMM_3B42RT_Daily.7/'
@@ -715,24 +685,8 @@ def GPMswat(args):
         print ('Thank you!')
         logging.info("Dates are not valid")
 
-    #  when data is ready, send the user an email with their unique access code
-    send_email(email, unique_id)
-    logging.info("Complete!!!")
 
-
-def GPMpolyCentroid(args):
-    Dir = args[0]
-    watershed = args[1]
-    DEM = args[2]
-    start = args[3]
-    end = args[4]
-    email = args[5]
-    unique_id = args[6]
-    unique_path = args[7]
-    shp_path = args[8]
-    dem_path = args[9]
-    set_working_directories(Dir, unique_path)
-
+def GPMpolyCentroid(Dir, watershed, DEM, start, end):
     logging.info("Running GPMpolycentroid")
     url_IMERG_input = 'https://gpm1.gesdisc.eosdis.nasa.gov/data/GPM_L3/GPM_3IMERGDF.05/'
     url_TRMM_input = 'https://disc2.gesdisc.eosdis.nasa.gov/data/TRMM_RT/TRMM_3B42RT_Daily.7/'
@@ -942,24 +896,8 @@ def GPMpolyCentroid(args):
         print('Please pick start date equal to or greater than 2000-Mar-01 to access TRMM and IMERG data products.')
         print('Thank you!')
 
-    #  when data is ready, send the user an email with their unique access code
-    send_email(email, unique_id)
-    logging.info("Complete!!!")
 
-
-def GLDASpolyCentroid(args):
-    Dir = args[0]
-    watershed = args[1]
-    DEM = args[2]
-    start = args[3]
-    end = args[4]
-    email = args[5]
-    unique_id = args[6]
-    unique_path = args[7]
-    shp_path = args[8]
-    dem_path = args[9]
-    set_working_directories(Dir, unique_path)
-
+def GLDASpolyCentroid(Dir, watershed, DEM, start, end):
     logging.info("Running GLDASpolycentroid")
     url_GLDAS_input = 'https://hydro1.gesdisc.eosdis.nasa.gov/data/GLDAS/GLDAS_NOAH025_3H.2.1/'
     myvar = 'Tair_f_inst'
@@ -1099,34 +1037,34 @@ def GLDASpolyCentroid(args):
         print('Please pick start date equal to or greater than 2000-Jan-01 to access GLDAS data products.')
         print('Thank you!')
 
-    #  when data is ready, send the user an email with their unique access code
+
+def nasaaccess_controller(args):
+
+    unique_path = args[0]
+    shp_path = args[1]
+    dem_path = args[2]
+    start = args[3]
+    end = args[4]
+    email = args[5]
+    unique_id = args[6]
+    tempdir = args[7]
+    functions = args[8]
+
+    set_working_directories(tempdir, unique_path)
+
+    # Run nasaaccess functions requested by user
+    for func in functions:
+        if func == 'GPMpolyCentroid':
+            output_path = os.path.join(unique_path, 'GPMpolyCentroid', '')
+            GPMpolyCentroid(output_path, shp_path, dem_path, start, end)
+        elif func == 'GPMswat':
+            output_path = os.path.join(unique_path, 'GPMswat', '')
+            GPMswat(output_path, shp_path, dem_path, start, end)
+        elif func == 'GLDASpolyCentroid':
+            output_path = os.path.join(unique_path, 'GLDASpolyCentroid', '')
+            GLDASpolyCentroid(output_path, shp_path, dem_path, start, end)
+        elif func == 'GLDASwat':
+            output_path = os.path.join(unique_path, 'GLDASwat', '')
+            GLDASwat(output_path, shp_path, dem_path, start, end)
+
     send_email(email, unique_id)
-    logging.info("Complete!!!")
-
-
-#  read in file paths and arguments from subprocess call in model.py
-# email = sys.argv[1]
-# functions = sys.argv[2].split(',')
-# unique_id = sys.argv[3]
-# shp_path = os.path.join(sys.argv[4])
-# dem_path = os.path.join(sys.argv[5])
-# unique_path = os.path.join(sys.argv[6], '')
-# tempdir = os.path.join(sys.argv[7], '')
-# start = sys.argv[8]
-# end = sys.argv[9]
-
-
-#  Run nasaaccess functions requested by user
-# for func in functions:
-#     if func == 'GPMpolyCentroid':
-#         output_path = os.path.join(unique_path, 'GPMpolyCentroid', '')
-#         GPMpolyCentroid(output_path, shp_path, dem_path, start, end)
-#     elif func == 'GPMswat':
-#         output_path = os.path.join(unique_path, 'GPMswat', '')
-#         GPMswat(output_path, shp_path, dem_path, start, end)
-#     elif func == 'GLDASpolyCentroid':
-#         output_path = os.path.join(unique_path, 'GLDASpolyCentroid', '')
-#         GLDASpolyCentroid(output_path, shp_path, dem_path, start, end)
-#     elif func == 'GLDASwat':
-#         output_path = os.path.join(unique_path, 'GLDASwat', '')
-#         GLDASwat(output_path, shp_path, dem_path, start, end)
