@@ -3,6 +3,9 @@ import os, random, string, subprocess, requests, shutil, logging, zipfile
 from .config import *
 from tethys_sdk.services import get_spatial_dataset_engine
 
+import threading
+from .nasaaccess import GLDASpolyCentroid, GLDASwat, GPMswat, GPMpolyCentroid, send_email
+
 logging.basicConfig(filename=nasaaccess_log,level=logging.INFO)
 
 
@@ -48,14 +51,35 @@ def nasaaccess_run(email, functions, watershed, dem, start, end, user_workspace)
     functions = ','.join(functions)
     logging.info(
         "Trying to run {0} functions for {1} watershed from {2} until {3}".format(functions, watershed, start, end))
+
+    args = []
+
     try:
         # pass user's inputs and file paths to the nasaaccess python function that will run detached from the app
-        run = subprocess.call([nasaaccess_py3, nasaaccess_script, email, functions, unique_id,
-                                shp_path, dem_path, unique_path, tempdir, start, end])
+        # run = subprocess.call([nasaaccess_py3, nasaaccess_script, email, functions, unique_id,
+        #                         shp_path, dem_path, unique_path, tempdir, start, end])
+        for function in functions:
+            if function == 'GPMpolyCentroid':
+                output_path = os.path.join(unique_path, 'GPMpolyCentroid', '')
+                threading.Thread(target=GPMpolyCentroid, args=args)
+                # GPMpolyCentroid(output_path, shp_path, dem_path, start, end)
+            elif function == 'GPMswat':
+                output_path = os.path.join(unique_path, 'GPMswat', '')
+                threading.Thread(target=GPMswat, args=args)
+                # GPMswat(output_path, shp_path, dem_path, start, end)
+            elif function == 'GLDASpolyCentroid':
+                output_path = os.path.join(unique_path, 'GLDASpolyCentroid', '')
+                threading.Thread(target=GLDASpolyCentroid, args=args)
+                # GLDASpolyCentroid(output_path, shp_path, dem_path, start, end)
+            elif function == 'GLDASwat':
+                output_path = os.path.join(unique_path, 'GLDASwat', '')
+                threading.Thread(target=GLDASwat, args=args)
+                # GLDASwat(output_path, shp_path, dem_path, start, end)
         return "nasaaccess is running"
     except Exception as e:
         logging.info(str(e))
         return str(e)
+
 
 def upload_shapefile(id, shp_path):
 

@@ -44,7 +44,6 @@ def home(request):
     demform = UploadDEMForm()
     accesscodeform = accessCodeForm()
 
-
     # Set date picker options
     start = 'Jan 01, 2000'
     end = datetime.datetime.now().strftime("%b %d, %Y")
@@ -70,27 +69,23 @@ def home(request):
                           end_date=end,
                           start_view=startView,
                           today_button=False,
-                          initial='End Date'
-                          )
-
+                          initial='End Date')
 
     select_watershed = SelectInput(display_text='',
-                              name='select_watershed',
-                              multiple=False,
-                              original=False,
-                              options=shp_options,
-                              select2_options={'placeholder': 'Select Boundary Shapefile',
-                                               'allowClear': False},
-                              )
-
-    select_dem = SelectInput(display_text='',
-                                   name='select_dem',
+                                   name='select_watershed',
                                    multiple=False,
                                    original=False,
-                                   options=dem_options,
-                                   select2_options={'placeholder': 'Select DEM',
-                                                    'allowClear': False},
-                                   )
+                                   options=shp_options,
+                                   select2_options={'placeholder': 'Select Boundary Shapefile',
+                                                    'allowClear': False})
+
+    select_dem = SelectInput(display_text='',
+                             name='select_dem',
+                             multiple=False,
+                             original=False,
+                             options=dem_options,
+                             select2_options={'placeholder': 'Select DEM',
+                                              'allowClear': False})
 
     context = {
         'start_pick': start_pick,

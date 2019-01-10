@@ -12,6 +12,10 @@ from .config import *
 
 logging.basicConfig(filename=nasaaccess_log, level=logging.INFO)
 
+# todo: i need to make sure the right paths are getting used in each spot. compare to spencer's original
+# todo: in model.py make the code set the args list that we pass to the these functions. get the order right
+# todo: run a sample model and have it email me
+
 
 def _rasterize_geom(geom, myshape, affinetrans, all_touched):
     indata = [(geom, 1)]
@@ -54,71 +58,140 @@ def rasterize_pctcover(geom, atrans, myshape):
 
     return pctcover
 
-    # This documentation is for each of the functions that follow
-    """
-    Description:
-        This function downloads remote sensing data of GLDAS from NASA GSFC servers, extracts air temperature data from
-        grids within a specified watershed shapefile, and then generates tables in a format that SWAT requires for
-        minimum and maximum air temperature data input. The function also generates the air temperature stations file
-        input (file with columns: ID, File NAME, LAT, LONG, and ELEVATION) for those selected grids that fall within the
-        specified watershed. The function assumes that users have already set up a registration account(s) with
-        Earthdata login as well as authorizing NASA GESDISC data access. Please refer to
-        https://disc.gsfc.nasa.gov/data-access for further details.
 
-    Arguments:
-        Dir:        A directory name to store gridded air temperature and air temperature stations files.
-        watershed:  A study watershed shapefile spatially describing polygon(s) in a geographic projection
-                        sp::CRS('+proj=longlat +datum=WGS84').
-        DEM:        A study watershed digital elevation model raster in a geographic projection
-                        sp::CRS('+proj=longlat +datum=WGS84').
-        start:      Begining date for gridded air temperature data.
-        end:        Ending date for gridded air temperature data.
+def send_email(to_email, unique_id):
+    from_email = 'nasaaccess@gmail.com'
 
-    Details
-        1. A user should visit https://disc.gsfc.nasa.gov/data-access to register with the Earth Observing System Data
-        and Information System (NASA Earthdata) and then authorize NASA GESDISC Data Access to successfuly work with
-        this function. The function accesses NASA Goddard Space Flight Center server address for GLDAS remote sensing
-        data products at (https://hydro1.gesdisc.eosdis.nasa.gov/data/GLDAS/GLDAS_NOAH025_3H.2.1/). The function uses
-        varible name ('Tair_f_inst') for air temperature in GLDAS data products. Units for gridded air temperature data
-        are degrees in 'K'. The GLDASwat function outputs gridded air temperature (maximum and minimum) data in degrees
-        'C'.
+    msg = MIMEMultipart('alternative')
+    msg['Subject'] = 'Your nasaaccess data is ready'
 
-        2. The goal of the Global Land Data Assimilation System GLDAS is to ingest satellite and ground-based
-        observational data products, using advanced land surface modeling and data assimilation techniques, in order to
-        generate optimal fields of land surface states and fluxes (Rodell et al., 2004). GLDAS dataset used in this
-        function is the GLDAS Noah Land Surface Model L4 3 hourly 0.25 x 0.25 degree V2.1. The full suite of GLDAS
-        datasets is avaliable at https://hydro1.gesdisc.eosdis.nasa.gov/dods/. The GLDASwat finds the minimum and
-        maximum air temperatures for each day at each grid within the study watershed by searching for minima and maxima
-        over the three hours air temperature data values available for each day and grid.
+    msg['From'] = from_email
+    msg['To'] = to_email
 
-        3. The GLDASwat function relies on 'curl' tool to transfer data from NASA servers to a user machine, using HTTPS
-        supported protocol. The 'curl' command embedded in this function to fetch GLDAS netcdf daily global files is
-        designed to work seamlessly given that appropriate logging information are stored in the ".netrc" file and the
-        cookies file ".urs_cookies" as explained in registering with the Earth Observing System Data and Information
-        System. It is imperative to say here that a user machine should have 'curl' installed as a prerequisite to run
-        GLDASwat.
-
-        4. The GLDAS V2.1 simulation started on January 1, 2000 using the conditions from the GLDAS V2.0 simulation. The
-        GLDAS V2.1 simulation was forced with National Oceanic and Atmospheric Administration NOAA, Global Data
-        Assimilation System GDAS atmospheric analysis fields (Derber et al., 1991), the disaggregated Global
-        Precipitation Climatology Project GPCP precipitation fields (Adler et al., 2003), and the Air Force Weather
-        Agency’s AGRicultural METeorological modeling system AGRMET radiation fields which became available for March 1,
-        2001 onwards.
-
-    Value
-        A table that includes points ID, Point file name, Lat, Long, and Elevation information formated to be read with
-        SWAT, and a scalar of maximum and minimum air temperature gridded data values at each point within the study
-        watershed in ascii format needed by SWAT model weather inputs will be stored at Dir.
-
-    Note
-        start should be equal to or greater than 2000-Jan-01.
-
-    Examples
-        GLDASwat(Dir = "./SWAT_INPUT/", watershed = "LowerMekong.shp", DEM = "LowerMekong_dem.tif", start = "2015-12-1", end = "2015-12-3")
+    # email content
+    message = """\
+        <html>
+            <head></head>
+            <body>
+                <p>Hello,
+                   <br>
+                   Your nasaaccess data is ready for download at 
+                   <a href="http://tethys-servir.adpc.net/apps/nasaaccess2">
+                        http://tethys-servir.adpc.net/apps/nasaaccess2
+                   </a>
+                   <br>
+                   Your unique access code is: <strong>""" + unique_id + """</strong><br>
+                </p>
+            </body>
+        <html>
     """
 
+    part1 = MIMEText(message, 'html')
+    msg.attach(part1)
 
-def GLDASwat(Dir, watershed, DEM, start, end):
+    gmail_user = 'nasaaccess@gmail.com'
+    gmail_pwd = 'nasaaccess123'
+    smtpserver = smtplib.SMTP('smtp.gmail.com', 587)
+    smtpserver.ehlo()
+    smtpserver.starttls()
+    smtpserver.ehlo()
+    smtpserver.login(gmail_user, gmail_pwd)
+    smtpserver.sendmail(gmail_user, to_email, msg.as_string())
+    smtpserver.close()
+
+
+def set_working_directories(tempdir, unique_path):
+    os.makedirs(tempdir)
+    os.chmod(tempdir, 0o777)
+
+    os.makedirs(unique_path)
+    os.chmod(unique_path, 0o777)
+    unique_path = os.path.join(unique_path, 'nasaaccess_data')
+
+    os.makedirs(unique_path)
+    os.chmod(unique_path, 0o777)
+
+    # change working directory to temporary directory for storing intermediate data
+    os.chdir(tempdir)
+
+
+# This documentation is for each of the 4 SWAT functions that follow
+"""
+Description:
+    This function downloads remote sensing data of GLDAS from NASA GSFC servers, extracts air temperature data from
+    grids within a specified watershed shapefile, and then generates tables in a format that SWAT requires for
+    minimum and maximum air temperature data input. The function also generates the air temperature stations file
+    input (file with columns: ID, File NAME, LAT, LONG, and ELEVATION) for those selected grids that fall within the
+    specified watershed. The function assumes that users have already set up a registration account(s) with
+    Earthdata login as well as authorizing NASA GESDISC data access. Please refer to
+    https://disc.gsfc.nasa.gov/data-access for further details.
+
+Arguments:
+    Dir:        A directory name to store gridded air temperature and air temperature stations files.
+    watershed:  A study watershed shapefile spatially describing polygon(s) in a geographic projection
+                    sp::CRS('+proj=longlat +datum=WGS84').
+    DEM:        A study watershed digital elevation model raster in a geographic projection
+                    sp::CRS('+proj=longlat +datum=WGS84').
+    start:      Begining date for gridded air temperature data.
+    end:        Ending date for gridded air temperature data.
+
+Details
+    1. A user should visit https://disc.gsfc.nasa.gov/data-access to register with the Earth Observing System Data
+    and Information System (NASA Earthdata) and then authorize NASA GESDISC Data Access to successfuly work with
+    this function. The function accesses NASA Goddard Space Flight Center server address for GLDAS remote sensing
+    data products at (https://hydro1.gesdisc.eosdis.nasa.gov/data/GLDAS/GLDAS_NOAH025_3H.2.1/). The function uses
+    varible name ('Tair_f_inst') for air temperature in GLDAS data products. Units for gridded air temperature data
+    are degrees in 'K'. The GLDASwat function outputs gridded air temperature (maximum and minimum) data in degrees
+    'C'.
+
+    2. The goal of the Global Land Data Assimilation System GLDAS is to ingest satellite and ground-based
+    observational data products, using advanced land surface modeling and data assimilation techniques, in order to
+    generate optimal fields of land surface states and fluxes (Rodell et al., 2004). GLDAS dataset used in this
+    function is the GLDAS Noah Land Surface Model L4 3 hourly 0.25 x 0.25 degree V2.1. The full suite of GLDAS
+    datasets is avaliable at https://hydro1.gesdisc.eosdis.nasa.gov/dods/. The GLDASwat finds the minimum and
+    maximum air temperatures for each day at each grid within the study watershed by searching for minima and maxima
+    over the three hours air temperature data values available for each day and grid.
+
+    3. The GLDASwat function relies on 'curl' tool to transfer data from NASA servers to a user machine, using HTTPS
+    supported protocol. The 'curl' command embedded in this function to fetch GLDAS netcdf daily global files is
+    designed to work seamlessly given that appropriate logging information are stored in the ".netrc" file and the
+    cookies file ".urs_cookies" as explained in registering with the Earth Observing System Data and Information
+    System. It is imperative to say here that a user machine should have 'curl' installed as a prerequisite to run
+    GLDASwat.
+
+    4. The GLDAS V2.1 simulation started on January 1, 2000 using the conditions from the GLDAS V2.0 simulation. The
+    GLDAS V2.1 simulation was forced with National Oceanic and Atmospheric Administration NOAA, Global Data
+    Assimilation System GDAS atmospheric analysis fields (Derber et al., 1991), the disaggregated Global
+    Precipitation Climatology Project GPCP precipitation fields (Adler et al., 2003), and the Air Force Weather
+    Agency’s AGRicultural METeorological modeling system AGRMET radiation fields which became available for March 1,
+    2001 onwards.
+
+Value
+    A table that includes points ID, Point file name, Lat, Long, and Elevation information formated to be read with
+    SWAT, and a scalar of maximum and minimum air temperature gridded data values at each point within the study
+    watershed in ascii format needed by SWAT model weather inputs will be stored at Dir.
+
+Note
+    start should be equal to or greater than 2000-Jan-01.
+
+Examples
+    GLDASwat(Dir = "./SWAT_INPUT/", watershed = "LowerMekong.shp", DEM = "LowerMekong_dem.tif", start = "2015-12-1", end = "2015-12-3")
+"""
+
+
+def GLDASwat(args):
+    Dir = args[0]
+    watershed = args[1]
+    DEM = args[2]
+    start = args[3]
+    end = args[4]
+    email = args[5]
+    unique_id = args[6]
+    unique_path = args[7]
+    shp_path = args[8]
+    dem_path = args[9]
+    set_working_directories(Dir, unique_path)
+
     logging.info("Running GLDASwat")
     url_GLDAS_input = 'https://hydro1.gesdisc.eosdis.nasa.gov/data/GLDAS/GLDAS_NOAH025_3H.2.1/'
     myvar = 'Tair_f_inst'
@@ -301,8 +374,24 @@ def GLDASwat(Dir, watershed, DEM, start, end):
         print('Please pick start date equal to or greater than 2000-Jan-01 to access GLDAS data products.')
         print('Thank you!')
 
+    #  when data is ready, send the user an email with their unique access code
+    send_email(email, unique_id)
+    logging.info("Complete!!!")
 
-def GPMswat(Dir, watershed, DEM, start, end):
+
+def GPMswat(args):
+    Dir = args[0]
+    watershed = args[1]
+    DEM = args[2]
+    start = args[3]
+    end = args[4]
+    email = args[5]
+    unique_id = args[6]
+    unique_path = args[7]
+    shp_path = args[8]
+    dem_path = args[9]
+    set_working_directories(Dir, unique_path)
+
     logging.info("Running GPMSwat")
     url_IMERG_input = 'https://gpm1.gesdisc.eosdis.nasa.gov/data/GPM_L3/GPM_3IMERGDF.05/'
     url_TRMM_input = 'https://disc2.gesdisc.eosdis.nasa.gov/data/TRMM_RT/TRMM_3B42RT_Daily.7/'
@@ -626,8 +715,24 @@ def GPMswat(Dir, watershed, DEM, start, end):
         print ('Thank you!')
         logging.info("Dates are not valid")
 
+    #  when data is ready, send the user an email with their unique access code
+    send_email(email, unique_id)
+    logging.info("Complete!!!")
 
-def GPMpolyCentroid(Dir, watershed, DEM, start, end):
+
+def GPMpolyCentroid(args):
+    Dir = args[0]
+    watershed = args[1]
+    DEM = args[2]
+    start = args[3]
+    end = args[4]
+    email = args[5]
+    unique_id = args[6]
+    unique_path = args[7]
+    shp_path = args[8]
+    dem_path = args[9]
+    set_working_directories(Dir, unique_path)
+
     logging.info("Running GPMpolycentroid")
     url_IMERG_input = 'https://gpm1.gesdisc.eosdis.nasa.gov/data/GPM_L3/GPM_3IMERGDF.05/'
     url_TRMM_input = 'https://disc2.gesdisc.eosdis.nasa.gov/data/TRMM_RT/TRMM_3B42RT_Daily.7/'
@@ -837,8 +942,24 @@ def GPMpolyCentroid(Dir, watershed, DEM, start, end):
         print('Please pick start date equal to or greater than 2000-Mar-01 to access TRMM and IMERG data products.')
         print('Thank you!')
 
+    #  when data is ready, send the user an email with their unique access code
+    send_email(email, unique_id)
+    logging.info("Complete!!!")
 
-def GLDASpolyCentroid(Dir, watershed, DEM, start, end):
+
+def GLDASpolyCentroid(args):
+    Dir = args[0]
+    watershed = args[1]
+    DEM = args[2]
+    start = args[3]
+    end = args[4]
+    email = args[5]
+    unique_id = args[6]
+    unique_path = args[7]
+    shp_path = args[8]
+    dem_path = args[9]
+    set_working_directories(Dir, unique_path)
+
     logging.info("Running GLDASpolycentroid")
     url_GLDAS_input = 'https://hydro1.gesdisc.eosdis.nasa.gov/data/GLDAS/GLDAS_NOAH025_3H.2.1/'
     myvar = 'Tair_f_inst'
@@ -978,90 +1099,34 @@ def GLDASpolyCentroid(Dir, watershed, DEM, start, end):
         print('Please pick start date equal to or greater than 2000-Jan-01 to access GLDAS data products.')
         print('Thank you!')
 
-
-def send_email(to_email, unique_id):
-
-    from_email = 'nasaaccess@gmail.com'
-
-    msg = MIMEMultipart('alternative')
-    msg['Subject'] = 'Your nasaaccess data is ready'
-
-    msg['From'] = from_email
-    msg['To'] = to_email
-
-    # email content
-    message = """\
-        <html>
-            <head></head>
-            <body>
-                <p>Hello,
-                   <br>
-                   Your nasaaccess data is ready for download at 
-                   <a href="http://tethys-servir.adpc.net/apps/nasaaccess2">
-                        http://tethys-servir.adpc.net/apps/nasaaccess2
-                   </a>
-                   <br>
-                   Your unique access code is: <strong>""" + unique_id + """</strong><br>
-                </p>
-            </body>
-        <html>
-    """
-
-    part1 = MIMEText(message, 'html')
-    msg.attach(part1)
-
-    gmail_user = 'nasaaccess@gmail.com'
-    gmail_pwd = 'nasaaccess123'
-    smtpserver = smtplib.SMTP('smtp.gmail.com', 587)
-    smtpserver.ehlo()
-    smtpserver.starttls()
-    smtpserver.ehlo()
-    smtpserver.login(gmail_user, gmail_pwd)
-    smtpserver.sendmail(gmail_user, to_email, msg.as_string())
-    smtpserver.close()
+    #  when data is ready, send the user an email with their unique access code
+    send_email(email, unique_id)
+    logging.info("Complete!!!")
 
 
 #  read in file paths and arguments from subprocess call in model.py
-email = sys.argv[1]
-functions = sys.argv[2].split(',')
-unique_id = sys.argv[3]
-shp_path = os.path.join(sys.argv[4])
-dem_path = os.path.join(sys.argv[5])
-unique_path = os.path.join(sys.argv[6], '')
-tempdir = os.path.join(sys.argv[7], '')
-start = sys.argv[8]
-end = sys.argv[9]
+# email = sys.argv[1]
+# functions = sys.argv[2].split(',')
+# unique_id = sys.argv[3]
+# shp_path = os.path.join(sys.argv[4])
+# dem_path = os.path.join(sys.argv[5])
+# unique_path = os.path.join(sys.argv[6], '')
+# tempdir = os.path.join(sys.argv[7], '')
+# start = sys.argv[8]
+# end = sys.argv[9]
 
-os.makedirs(tempdir)
-os.chmod(tempdir, 0o777)
-
-os.makedirs(unique_path)
-os.chmod(unique_path, 0o777)
-unique_path = os.path.join(unique_path, 'nasaaccess_data')
-
-os.makedirs(unique_path)
-os.chmod(unique_path, 0o777)
-
-
-# change working directory to temporary directory for storing intermediate data
-os.chdir(tempdir)
 
 #  Run nasaaccess functions requested by user
-for func in functions:
-    if func == 'GPMpolyCentroid':
-        output_path = os.path.join(unique_path, 'GPMpolyCentroid', '')
-        GPMpolyCentroid(output_path, shp_path, dem_path, start, end)
-    elif func == 'GPMswat':
-        output_path = os.path.join(unique_path, 'GPMswat', '')
-        GPMswat(output_path, shp_path, dem_path, start, end)
-    elif func == 'GLDASpolyCentroid':
-        output_path = os.path.join(unique_path, 'GLDASpolyCentroid', '')
-        GLDASpolyCentroid(output_path, shp_path, dem_path, start, end)
-    elif func == 'GLDASwat':
-        output_path = os.path.join(unique_path, 'GLDASwat', '')
-        GLDASwat(output_path, shp_path, dem_path, start, end)
-
-#  when data is ready, send the user an email with their unique access code
-send_email(email, unique_id)
-
-logging.info("Complete!!!")
+# for func in functions:
+#     if func == 'GPMpolyCentroid':
+#         output_path = os.path.join(unique_path, 'GPMpolyCentroid', '')
+#         GPMpolyCentroid(output_path, shp_path, dem_path, start, end)
+#     elif func == 'GPMswat':
+#         output_path = os.path.join(unique_path, 'GPMswat', '')
+#         GPMswat(output_path, shp_path, dem_path, start, end)
+#     elif func == 'GLDASpolyCentroid':
+#         output_path = os.path.join(unique_path, 'GLDASpolyCentroid', '')
+#         GLDASpolyCentroid(output_path, shp_path, dem_path, start, end)
+#     elif func == 'GLDASwat':
+#         output_path = os.path.join(unique_path, 'GLDASwat', '')
+#         GLDASwat(output_path, shp_path, dem_path, start, end)
