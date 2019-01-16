@@ -1,0 +1,42 @@
+ERROR:django.request:Internal Server Error: /apps/nasaaccess2/
+Traceback (most recent call last):
+  File "/Users/rileyhales/tethys/miniconda/envs/tethys/lib/python3.5/site-packages/django/core/handlers/exception.py", line 41, in inner
+    response = get_response(request)
+  File "/Users/rileyhales/tethys/miniconda/envs/tethys/lib/python3.5/site-packages/django/core/handlers/base.py", line 249, in _legacy_get_response
+    response = self._get_response(request)
+  File "/Users/rileyhales/tethys/miniconda/envs/tethys/lib/python3.5/site-packages/django/core/handlers/base.py", line 187, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/rileyhales/tethys/miniconda/envs/tethys/lib/python3.5/site-packages/django/core/handlers/base.py", line 185, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/rileyhales/tethys/src/tethys_apps/tethysapp/nasaaccess2/controllers.py", line 15, in home
+    user_workspace = os.path.join(nasaaccess2.get_user_workspace(request.user).path)
+  File "/Users/rileyhales/tethys/src/tethys_apps/base/app_base.py", line 771, in get_user_workspace
+    raise ValueError("Invalid type for argument 'user': must be either an User or HttpRequest object.")
+ValueError: Invalid type for argument 'user': must be either an User or HttpRequest object.
+ERROR:django.server:"GET /apps/nasaaccess2/ HTTP/1.1" 500 83378
+ERROR:django.request:Internal Server Error: /apps/nasaaccess2/
+Traceback (most recent call last):
+  File "/Users/rileyhales/tethys/miniconda/envs/tethys/lib/python3.5/site-packages/django/core/handlers/exception.py", line 41, in inner
+    response = get_response(request)
+  File "/Users/rileyhales/tethys/miniconda/envs/tethys/lib/python3.5/site-packages/django/core/handlers/base.py", line 249, in _legacy_get_response
+    response = self._get_response(request)
+  File "/Users/rileyhales/tethys/miniconda/envs/tethys/lib/python3.5/site-packages/django/core/handlers/base.py", line 187, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/rileyhales/tethys/miniconda/envs/tethys/lib/python3.5/site-packages/django/core/handlers/base.py", line 185, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/rileyhales/tethys/src/tethys_apps/tethysapp/nasaaccess2/controllers.py", line 18, in home
+    shp_files_sys = os.listdir(shapefile_path)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/rileyhales/tethys/src/tethys_apps/tethysapp/nasaaccess2/workspaces/app_workspace/workspaces/app_workspace/shapefiles'
+ERROR:django.server:"GET /apps/nasaaccess2/ HTTP/1.1" 500 79987
+INFO:root:Trying to run ['GLDASwat'] functions for watershed_Project watershed from 2019-01-08 until 2019-01-09
+INFO:root:Running GLDASwat
+INFO:root:Trying to run ['GLDASwat'] functions for watershed_Project watershed from 2019-01-08 until 2019-01-09
+INFO:root:Running GLDASwat
+INFO:root:Trying to run ['GLDASwat'] functions for watershed_Project watershed from 2019-01-08 until 2019-01-09
+INFO:root:Running GLDASwat
+INFO:root:Trying to run ['GLDASwat'] functions for watershed_Project watershed from 2019-01-08 until 2019-01-09
+INFO:root:Running GLDASwat
+INFO:root:Trying to run ['GLDASwat'] functions for watershed_Project watershed from 2019-01-08 until 2019-01-09
+INFO:root:Running GLDASwat
+INFO:root:Trying to run ['GLDASwat'] functions for watershed_Project watershed from 2019-01-08 until 2019-01-09
+INFO:root:Running GLDASwat

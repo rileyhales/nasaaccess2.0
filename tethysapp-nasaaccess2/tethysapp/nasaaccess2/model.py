@@ -6,7 +6,7 @@ from tethys_sdk.services import get_spatial_dataset_engine
 import threading
 from .nasaaccess import nasaaccess_controller
 
-logging.basicConfig(filename=nasaaccess_log,level=logging.INFO)
+logging.basicConfig(filename=nasaaccess_log, level=logging.INFO)
 
 
 # Model for the Upload Shapefiles form
@@ -22,80 +22,6 @@ class DEMfiles(models.Model):
 # Model for data access form
 class accessCode(models.Model):
     access_code = models.CharField(max_length=6)
-
-
-def nasaaccess_run(email, functions, watershed, dem, start, end, user_workspace):
-    # identify where each of the input files are located in the server
-    shp_path_sys = os.path.join(data_path, 'shapefiles', watershed, watershed + '.shp')
-    shp_path_user = os.path.join(user_workspace, 'shapefiles', watershed, watershed + '.shp')
-    shp_path = ''
-    if os.path.isfile(shp_path_sys):
-        shp_path = shp_path_sys
-    elif os.path.isfile(shp_path_user):
-        shp_path = shp_path_user
-    print('shape path:', shp_path)
-    dem_path_sys = os.path.join(data_path, 'DEMfiles', dem + '.tif')
-    dem_path_user = os.path.join(user_workspace, 'DEMfiles', dem + '.tif')
-    dem_path = ''
-    if os.path.isfile(dem_path_sys):
-        dem_path = dem_path_sys
-    elif os.path.isfile(shp_path_user):
-        dem_path = dem_path_user
-    print('dem path:', dem_path)
-    # create a new folder to store the user's requested data
-    unique_id = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
-    unique_path = os.path.join(data_path, 'outputs', unique_id)
-    # create a temporary directory to store all intermediate data while nasaaccess functions run
-    tempdir = os.path.join(data_path, 'temp', 'earthdata', unique_id)
-
-    functions = ','.join(functions)
-    logging.info(
-        "Trying to run {0} functions for {1} watershed from {2} until {3}".format(functions, watershed, start, end))
-
-    args = [unique_path, shp_path, dem_path, start, end, email, unique_id, tempdir, functions]
-    """
-        these arguements will be used by each of the functions for the swat models
-            unique_path = args[0]
-            watershed = args[1]
-            DEM = args[2]
-            start = args[3]
-            end = args[4]
-            email = args[5]
-            unique_id = args[6]
-            tempdir = args[7]
-            functions = args[8] 
-    """
-
-    try:
-        # pass user's inputs and file paths to the nasaaccess python function that will run detached from the app
-        # run = subprocess.call([nasaaccess_py3, nasaaccess_script, email, functions, unique_id,
-        #                         shp_path, dem_path, unique_path, tempdir, start, end])
-        # for function in functions:
-        #     if function == 'GPMpolyCentroid':
-                # output_path = os.path.join(unique_path, 'GPMpolyCentroid', '')
-                # GPMpolyCentroid(output_path, shp_path, dem_path, start, end)
-                # threading.Thread(target=GPMpolyCentroid, args=args)
-            # elif function == 'GPMswat':
-            #     output_path = os.path.join(unique_path, 'GPMswat', '')
-            #     threading.Thread(target=GPMswat, args=args)
-                # GPMswat(output_path, shp_path, dem_path, start, end)
-            # elif function == 'GLDASpolyCentroid':
-            #     output_path = os.path.join(unique_path, 'GLDASpolyCentroid', '')
-            #     threading.Thread(target=GLDASpolyCentroid, args=args)
-                # GLDASpolyCentroid(output_path, shp_path, dem_path, start, end)
-            # elif function == 'GLDASwat':
-            #     output_path = os.path.join(unique_path, 'GLDASwat', '')
-            #     threading.Thread(target=GLDASwat, args=args)
-                # GLDASwat(output_path, shp_path, dem_path, start, end)
-        threading.Thread(target=nasaaccess_controller, args=args)
-        return "nasaaccess is running"
-    except Exception as e:
-        logging.info(str(e))
-        return str(e)
-
-    #  when data is ready, send the user an email with their unique access code
-    send_email(email, unique_id)
-    logging.info("Complete!!!")
 
 
 def upload_shapefile(id, shp_path):

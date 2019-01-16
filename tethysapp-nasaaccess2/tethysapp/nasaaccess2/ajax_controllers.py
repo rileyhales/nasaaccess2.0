@@ -5,6 +5,7 @@ from .forms import UploadShpForm, UploadDEMForm
 from .config import *
 from .model import *
 from .app import nasaaccess2
+import pprint
 
 logging.basicConfig(filename=nasaaccess_log, level=logging.INFO)
 
@@ -14,19 +15,68 @@ def run_nasaaccess(request):
     Controller to call nasaaccess R functions.
     """
     # Get selected parameters and pass them into nasaccess R scripts
+
+    print("Starting the NasaAccess Ajax Script")
+
     try:
         start = request.POST.get('startDate')
-        d_start = str(datetime.datetime.strptime(start, '%b %d, %Y').strftime('%Y-%m-%d'))
+        start = str(datetime.datetime.strptime(start, '%b %d, %Y').strftime('%Y-%m-%d'))
+        print("start date:", start)
         end = request.POST.get(str('endDate'))
-        d_end = str(datetime.datetime.strptime(end, '%b %d, %Y').strftime('%Y-%m-%d'))
+        end = str(datetime.datetime.strptime(end, '%b %d, %Y').strftime('%Y-%m-%d'))
+        print("end date:", end)
         functions = request.POST.getlist('functions[]')
+        print('fuctions', functions)
         watershed = request.POST.get('watershed')
+        print('watershed', watershed)
         dem = request.POST.get('dem')
+        print('dem', dem)
         email = request.POST.get('email')
+        print('email', email)
         user_workspace = os.path.join(nasaaccess2.get_user_workspace(request.user).path)
+        print('user workspace', user_workspace)
         os.chmod(user_workspace, 0o777)
-        result = nasaaccess_run(email, functions, watershed, dem, d_start, d_end, user_workspace)
-        return JsonResponse({'Result': str(result)})
+
+        # identify where each of the input files are located in the server
+        shp_path_sys = os.path.join(data_path, 'workspaces/app_workspace/shapefiles', watershed, watershed + '.shp')
+        shp_path_user = os.path.join(user_workspace, 'shapefiles', watershed, watershed + '.shp')
+        shp_path = ''
+        if os.path.isfile(shp_path_sys):
+            shp_path = shp_path_sys
+        elif os.path.isfile(shp_path_user):
+            shp_path = shp_path_user
+        print('shape path:', shp_path)
+
+        dem_path_sys = os.path.join(data_path, 'workspaces/app_workspace/DEMfiles', dem, dem + '.tif')
+        dem_path_user = os.path.join(user_workspace, 'DEMfiles', dem + '.tif')
+        dem_path = ''
+        if os.path.isfile(dem_path_sys):
+            dem_path = dem_path_sys
+        elif os.path.isfile(shp_path_user):
+            dem_path = dem_path_user
+        print('dem path:', dem_path)
+
+        # create a new folder to store the user's requested data
+        unique_id = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
+        unique_path = os.path.join(data_path, 'workspaces/app_workspace/outputs', unique_id)
+        print('unique path', unique_path)
+
+        # create a temporary directory to store all intermediate data while nasaaccess functions run
+        tempdir = os.path.join(data_path, 'temp', 'workspaces/app_workspace/temp/earthdata', unique_id)
+        print('tempdir', tempdir)
+
+        # functions = ','.join(functions)
+        logging.info(
+            "Trying to run {0} functions for {1} watershed from {2} until {3}".format(functions, watershed, start, end))
+
+        args = (unique_path, shp_path, dem_path, start, end, email, unique_id, tempdir, functions)
+        print('these are the args that are going to be passed to the functions')
+        pprint.pprint(args)
+
+        print('the time has come, starting a new thread to run your processes')
+        threading.Thread(target=nasaaccess_controller, args=args, name='SWAT Backend Thread').start()
+        # result = nasaaccess_controller(args)
+        return JsonResponse({'Result': 'nasaaccess is running'})
     except Exception as e:
         return JsonResponse({'Error': str(e)})
 

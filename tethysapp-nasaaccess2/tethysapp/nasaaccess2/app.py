@@ -2,6 +2,9 @@ from tethys_sdk.base import TethysAppBase, url_map_maker
 from tethys_sdk.app_settings import CustomSetting
 
 
+# todo: known problem, the app doesn't interpret the right DEM and shp paths. the threading setup appears to work
+
+
 class nasaaccess2(TethysAppBase):
     """
     Tethys app class for nasaaccess2.

@@ -12,8 +12,6 @@ from .config import *
 
 logging.basicConfig(filename=nasaaccess_log, level=logging.INFO)
 
-# todo: run a sample model and have it email me
-
 
 def _rasterize_geom(geom, myshape, affinetrans, all_touched):
     indata = [(geom, 1)]
@@ -99,6 +97,9 @@ def send_email(to_email, unique_id):
 
 
 def set_working_directories(tempdir, unique_path):
+
+    print('setting working directories')
+
     os.makedirs(tempdir)
     os.chmod(tempdir, 0o777)
 
@@ -111,6 +112,11 @@ def set_working_directories(tempdir, unique_path):
 
     # change working directory to temporary directory for storing intermediate data
     os.chdir(tempdir)
+
+    print('tempdir', tempdir)
+    print('unique path', unique_path)
+
+    return unique_path, tempdir
 
 
 # This documentation is for each of the 4 SWAT functions that follow
@@ -1038,32 +1044,43 @@ def GLDASpolyCentroid(Dir, watershed, DEM, start, end):
         print('Thank you!')
 
 
-def nasaaccess_controller(args):
+def nasaaccess_controller(unique_path, shp_path, dem_path, start, end, email, unique_id, tempdir, functions):
+    """
+    This function is a controller that processes the inputs chosen by the user in the app and processed by the ajax
+    controller, run_nasaaccess. this function takes all the parameters and passes them to the appropriate functions
 
-    unique_path = args[0]
-    shp_path = args[1]
-    dem_path = args[2]
-    start = args[3]
-    end = args[4]
-    email = args[5]
-    unique_id = args[6]
-    tempdir = args[7]
-    functions = args[8]
+    :param unique_path:
+    :param shp_path:
+    :param dem_path:
+    :param start:
+    :param end:
+    :param email:
+    :param unique_id:
+    :param tempdir:
+    :param functions:
+    :return:
+    """
 
+    print('you called the nasaaccess controller')
     set_working_directories(tempdir, unique_path)
 
     # Run nasaaccess functions requested by user
-    for func in functions:
-        if func == 'GPMpolyCentroid':
+    for function in functions:
+        print('starting', function)
+        if function == 'GPMpolyCentroid':
+            print('running GPMpolyCentroid')
             output_path = os.path.join(unique_path, 'GPMpolyCentroid', '')
             GPMpolyCentroid(output_path, shp_path, dem_path, start, end)
-        elif func == 'GPMswat':
+        elif function == 'GPMswat':
+            print('running GPMswat')
             output_path = os.path.join(unique_path, 'GPMswat', '')
             GPMswat(output_path, shp_path, dem_path, start, end)
-        elif func == 'GLDASpolyCentroid':
+        elif function == 'GLDASpolyCentroid':
+            print('running GLDASpolyCentroid')
             output_path = os.path.join(unique_path, 'GLDASpolyCentroid', '')
             GLDASpolyCentroid(output_path, shp_path, dem_path, start, end)
-        elif func == 'GLDASwat':
+        elif function == 'GLDASwat':
+            print('running GLDASwat')
             output_path = os.path.join(unique_path, 'GLDASwat', '')
             GLDASwat(output_path, shp_path, dem_path, start, end)
 
